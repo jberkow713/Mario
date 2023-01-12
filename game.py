@@ -4,7 +4,6 @@ pygame.init()
 
 WIDTH=800
 HEIGHT=400
-Score = 0
 Health = 50
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -43,6 +42,7 @@ for x in snails:
 
 Game_Active = True
 can_jump=True
+T_0 = 0
 while True:    
     if Game_Active==True:
         for event in pygame.event.get():
@@ -56,11 +56,19 @@ while True:
                     can_jump = False
         
         screen.blit(sky, (0,0))
-        screen.blit(ground,(0,300))    
-        score_surface = test_font.render(f'Health Left {Health}',False, 'Black')
-        score_rect = score_surface.get_rect(center=(WIDTH/2, 50))
-        pygame.draw.rect(screen, 'Pink', score_rect)
-        screen.blit(score_surface, score_rect)    
+        screen.blit(ground,(0,300))
+        Score = pygame.time.get_ticks()-T_0
+          
+        score_surface = test_font.render(f'Score:{Score//1000}',False, 'Black')
+        score_rect_1 = score_surface.get_rect(center=(100, 25))
+        pygame.draw.rect(screen, 'Pink', score_rect_1)
+        screen.blit(score_surface, score_rect_1)
+
+        score_surface_2 = test_font.render(f'Health:{Health}',False, 'Black')
+        score_rect_2 = score_surface_2.get_rect(center=(700, 25))
+        pygame.draw.rect(screen, 'Pink', score_rect_2)
+        screen.blit(score_surface_2, score_rect_2) 
+
         
         # Snails
         for snail in Snails:
@@ -90,8 +98,10 @@ while True:
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                T_0 =pygame.time.get_ticks()
                 Game_Active=True
                 Health=50
-                        
+                
+                                        
     pygame.display.update()
     clock.tick(60)     
