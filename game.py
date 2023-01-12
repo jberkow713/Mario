@@ -84,11 +84,14 @@ while True:
                 
     else:
         # Entry Screen/Game Over Screen
+        screen.fill('Blue')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-        screen.fill('Blue')   
-
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                Game_Active=True
+                Health=50
+                        
     pygame.display.update()
     clock.tick(60)     
