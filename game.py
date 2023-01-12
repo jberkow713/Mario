@@ -41,45 +41,54 @@ snails = [500]
 for x in snails:
     Snail(x,5)
 
+Game_Active = True
 can_jump=True
 while True:    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if can_jump==True:
-            if event.type == pygame.MOUSEBUTTONDOWN:            
-                # Jumping
-                player_rect.y -=80
-                can_jump = False
-    
-    screen.blit(sky, (0,0))
-    screen.blit(ground,(0,300))    
-    score_surface = test_font.render(f'Health Left {Health}',False, 'Black')
-    score_rect = score_surface.get_rect(center=(WIDTH/2, 50))
-    pygame.draw.rect(screen, 'Pink', score_rect)
-    screen.blit(score_surface, score_rect)    
-    
-    # Snails
-    for snail in Snails:
-        snail.blit()
-        snail.move()
-        if player_rect.right<=WIDTH and snail.rect.right<=WIDTH:
-            if player_rect.colliderect(snail.rect):
-                Health-=1
-                if Health <=0:
-                    print('Game Over')
-                    exit()                       
-    # Player
-    if player_rect.bottom <300:
-        player_rect.y +=3    
-    if player_rect.bottom>=300:
-        can_jump=True
-        player_rect.bottom = 300   
-    player_rect.left +=5    
-    if player_rect.left>=WIDTH:
-        player_rect.right = 0
-    screen.blit(player, player_rect) 
-    
+    if Game_Active==True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if can_jump==True:
+                if event.type == pygame.MOUSEBUTTONDOWN:            
+                    # Jumping
+                    player_rect.y -=100
+                    can_jump = False
+        
+        screen.blit(sky, (0,0))
+        screen.blit(ground,(0,300))    
+        score_surface = test_font.render(f'Health Left {Health}',False, 'Black')
+        score_rect = score_surface.get_rect(center=(WIDTH/2, 50))
+        pygame.draw.rect(screen, 'Pink', score_rect)
+        screen.blit(score_surface, score_rect)    
+        
+        # Snails
+        for snail in Snails:
+            snail.blit()
+            snail.move()
+            if player_rect.right<=WIDTH and snail.rect.right<=WIDTH:
+                if player_rect.colliderect(snail.rect):
+                    Health-=1
+                    if Health <=0:
+                        Game_Active=False                      
+        # Player
+        if player_rect.bottom <300:
+            player_rect.y +=5    
+        if player_rect.bottom>=300:
+            can_jump=True
+            player_rect.bottom = 300   
+        player_rect.left +=5    
+        if player_rect.left>=WIDTH:
+            player_rect.right = 0
+        screen.blit(player, player_rect) 
+                
+    else:
+        # Entry Screen/Game Over Screen
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        screen.fill('Blue')   
+
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(60)     
