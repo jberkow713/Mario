@@ -74,10 +74,10 @@ class Player:
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
             for r in Rectangles:                
-                if self.x -75>=r.x and self.x-75<= r.x + r.width:                    
+                if self.x >r.x and self.x-75< r.x + r.width:
                     if self.y >r.y:                        
-                        if r.y +r.height > self.y - 300:
-                            self.y = r.y + r.height +75
+                        if r.y +r.height >= self.y - 300:
+                            self.y = r.y + r.height+75 
                             self.can_jump=False
                             return  
             self.y -= 300
@@ -130,9 +130,12 @@ class RECT:
 for _ in range(5):
     Meteor()
 P = Player(100)
-R = RECT('blue', 250,600,100,100)
-R_2 = RECT('red',350,500,100,100 )
-R_3 = RECT('green',450,400,100,100 )
+RECT('blue', 150,600,100,100)
+RECT('red',250,500,100,100)
+RECT('green',350,400,100,100)
+RECT('blue', 450,300,100,100)
+RECT('red',550,400,100,100)
+RECT('green',650,500,100,100)
 
 while True:
     for event in pygame.event.get():
