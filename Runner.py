@@ -73,8 +73,23 @@ class Player:
                 self.x =current                          
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
-            for r in Rectangles:                
-                if self.x >r.x and self.x-75< r.x + r.width:
+            L = []
+            for r in Rectangles:
+                if self.floor ==None:
+
+                    if self.x >r.x and self.x-75< r.x + r.width:
+                        L.append(r)
+                else:
+                   if self.x >r.x and self.x-75< r.x + r.width:
+                        if r.y <self.floor:
+                            L.append(r)         
+            
+            Lowest = 0
+            for r in L:
+                if r.y>=Lowest:
+                    Lowest = r.y 
+            for r in L:
+                if r.y == Lowest:
                     if self.y >r.y:                        
                         if r.y +r.height >= self.y - 300:
                             self.y = r.y + r.height+75 
@@ -134,8 +149,9 @@ RECT('blue', 150,600,100,100)
 RECT('red',250,500,100,100)
 RECT('green',350,400,100,100)
 RECT('blue', 450,300,100,100)
-RECT('red',550,400,100,100)
+RECT('red',450,400,100,100)
 RECT('green',650,500,100,100)
+RECT('blue', 150,300,100,100)
 
 while True:
     for event in pygame.event.get():
