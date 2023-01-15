@@ -6,6 +6,7 @@ pygame.init()
 
 WIDTH=800
 HEIGHT=800
+FLOOR = 700
 BG_Color = (64,124,200)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 ground = pygame.image.load('ground.png').convert()
@@ -16,39 +17,44 @@ Meteors = []
 Rectangles= []
 
 class Player:
+    # Character Movement, collision detection, etc.
     def __init__(self, x):
         self.x = x
-        self.y = 700
+        self.y = FLOOR
         self.image = pygame.image.load('player_walk_1.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (75,75))
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
         self.speed = 5
         self.floor = None
         self.can_jump=True
+        self.JUMP = 300
+        self.x_size = 75
+        self.y_size = 75
+        self.gravity = 10
 
     def move(self):
         if self.can_jump==True and self.floor!=None:
             count = 0
-            temp = self.image.get_rect(bottomright=(self.x,self.y+10))
+            temp = self.image.get_rect(bottomright=(self.x,self.y+self.gravity))
             for r in Rectangles:
                 if pygame.Rect.colliderect(temp, r.rect)==0:
                     count+=1
             if count==len(Rectangles):
-                self.y+=10
-                if self.y>=700:
-                    self.y = 700
+                self.y+=self.gravity
+                if self.y>=FLOOR:
+                    self.y = FLOOR
                     self.floor=None
         if self.can_jump==False:            
-            current = self.y + 10
+            current = self.y + self.gravity
             for r in Rectangles:
                 temp = self.image.get_rect(bottomright=(self.x, current))
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
                     return
-            self.y +=10
-            if self.y>=700:
-                self.y = 700
+            self.y +=self.gravity
+            if self.y>=FLOOR:
+                self.y = FLOOR
                 self.can_jump=True
 
         keys = pygame.key.get_pressed()
@@ -75,15 +81,13 @@ class Player:
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
             for r in Rectangles:
-                if self.floor ==None:
-
-                    if self.x >r.x and self.x-75< r.x + r.width:
+                if self.floor == None:
+                    if self.x >r.x and self.x-self.x_size< r.x + r.width:
                         L.append(r)
                 else:
-                   if self.x >r.x and self.x-75< r.x + r.width:
+                   if self.x >r.x and self.x-self.x_size< r.x + r.width:
                         if r.y <self.floor:
-                            L.append(r)         
-            
+                            L.append(r)            
             Lowest = 0
             for r in L:
                 if r.y>=Lowest:
@@ -91,16 +95,16 @@ class Player:
             for r in L:
                 if r.y == Lowest:
                     if self.y >r.y:                        
-                        if r.y +r.height >= self.y - 300:
-                            self.y = r.y + r.height+75 
+                        if r.y +r.height >= self.y - self.JUMP:
+                            self.y = r.y + r.height+self.x_size 
                             self.can_jump=False
                             return  
-            self.y -= 300
+            self.y -= self.JUMP
             self.can_jump=False        
         if self.rect.left>=WIDTH:
             self.x = 0
         elif self.rect.right<0:
-            self.x = 850
+            self.x = WIDTH+self.x_size
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
 
     def blit(self):
@@ -159,7 +163,7 @@ while True:
             pygame.quit()
             exit()
     screen.fill(BG_Color)
-    screen.blit(ground,(0,700))    
+    screen.blit(ground,(0,FLOOR))    
     for r in Rectangles:
         r.blit()
     for meteor in Meteors:
