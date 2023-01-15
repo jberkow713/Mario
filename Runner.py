@@ -20,6 +20,7 @@ class Player:
         self.x = x
         self.y = 700
         self.image = pygame.image.load('player_walk_1.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (75,75))
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
         self.speed = 5
         self.floor = None
@@ -72,9 +73,15 @@ class Player:
                 self.x =current                          
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
+            for r in Rectangles:                
+                if self.x -75>=r.x and self.x-75<= r.x + r.width:                    
+                    if self.y >r.y:                        
+                        if r.y +r.height > self.y - 300:
+                            self.y = r.y + r.height +75
+                            self.can_jump=False
+                            return  
             self.y -= 300
-            self.can_jump=False
-        
+            self.can_jump=False        
         if self.rect.left>=WIDTH:
             self.x = 0
         elif self.rect.right<0:
@@ -107,7 +114,7 @@ class Meteor:
                         self.rect.x = x
                         rework=True
                         break                    
-# pygame.draw.rect(surface, color, pygame.Rect(30, 30, 60, 60))
+
 class RECT:
     def __init__(self,color,x,y, width,height):
         self.color = color
@@ -125,7 +132,7 @@ for _ in range(5):
 P = Player(100)
 R = RECT('blue', 250,600,100,100)
 R_2 = RECT('red',350,500,100,100 )
-print(Rectangles)
+R_3 = RECT('green',450,400,100,100 )
 
 while True:
     for event in pygame.event.get():
