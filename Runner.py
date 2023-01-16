@@ -31,6 +31,8 @@ class Player:
         self.x_size = 75
         self.y_size = 75
         self.gravity = 10
+        self.map = Map(8)
+        self.map.build()
 
     def move(self):
         if self.can_jump==True and self.floor!=None:
@@ -41,9 +43,14 @@ class Player:
                     count+=1
             if count==len(Rectangles):
                 self.y+=self.gravity
+                if self.y !=FLOOR:
+                    self.floor = self.y
                 if self.y>=FLOOR:
+                    print('floor')
                     self.y = FLOOR
                     self.floor=None
+
+                    
         if self.can_jump==False:            
             current = self.y + self.gravity
             for r in Rectangles:
@@ -60,13 +67,17 @@ class Player:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             current = self.x - self.speed
+            if current<75:
+                self.x = 75
+                return
             count = 0
             for r in Rectangles:                            
                 temp = self.image.get_rect(bottomright=(current,self.y))
                 if pygame.Rect.colliderect(temp, r.rect)==0:
                     count+=1
             if count ==len(Rectangles):
-                self.x =current                   
+                self.x =current
+                                 
                                                                    
         if keys[pygame.K_RIGHT]:            
             current = self.x + self.speed
@@ -81,13 +92,16 @@ class Player:
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
             for r in Rectangles:
-                if self.floor == None:
+                if self.floor != None:
+                    if self.x >r.x and self.x-self.x_size< r.x + r.width:
+                        if r.y <self.floor:
+                            L.append(r)
+                elif self.floor==None:
                     if self.x >r.x and self.x-self.x_size< r.x + r.width:
                         L.append(r)
-                else:
-                   if self.x >r.x and self.x-self.x_size< r.x + r.width:
-                        if r.y <self.floor:
-                            L.append(r)            
+
+            print(L,self.floor)    
+                                  
             Lowest = 0
             for r in L:
                 if r.y>=Lowest:
@@ -102,9 +116,10 @@ class Player:
             self.y -= self.JUMP
             self.can_jump=False        
         if self.rect.left>=WIDTH:
+            Rectangles.clear()
+            self.map.build()
             self.x = 0
-        elif self.rect.right<0:
-            self.x = WIDTH+self.x_size
+                    
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
 
     def blit(self):
@@ -144,18 +159,32 @@ class RECT:
         self.rect = Rect(x, y, width, height)
         Rectangles.append(self)        
     def blit(self):
-        pygame.draw.rect(screen, self.color,self.rect)    
+        pygame.draw.rect(screen, self.color,self.rect)
 
+class Map:
+    def __init__(self, count):
+        self.count = count
+        self.x_locs = [50*x for x in range(2,13,2)]
+        self.y_locs = [50*y for y in range(2,13,2)]
+        self.colors = ['red', 'blue', 'green', 'orange']
+        
+    def build(self):
+        tiles = []
+        for _ in range(self.count):
+            used = False
+            while used==False:
+                x_loc = self.x_locs[random.randint(0,len(self.x_locs)-1)]
+                y_loc = self.y_locs[random.randint(0,len(self.y_locs)-1)]
+                loc = x_loc,y_loc
+                if loc not in tiles:
+                    tiles.append(loc)
+                    used=True
+        for x in tiles:
+            RECT(self.colors[random.randint(0,len(self.colors)-1)], x[0], x[1], 100,100 )
+        
 for _ in range(5):
     Meteor()
 P = Player(100)
-RECT('blue', 150,600,100,100)
-RECT('red',250,500,100,100)
-RECT('green',350,400,100,100)
-RECT('blue', 450,300,100,100)
-RECT('red',450,400,100,100)
-RECT('green',650,500,100,100)
-RECT('blue', 150,300,100,100)
 
 while True:
     for event in pygame.event.get():
