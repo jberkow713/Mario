@@ -54,8 +54,7 @@ class Player:
         if self.can_jump==False:            
             current = self.y + self.gravity
             for r in Rectangles:
-                temp = self.image.get_rect(bottomright=(self.x, current))
-                                    
+                temp = self.image.get_rect(bottomright=(self.x, current))                                    
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
@@ -72,10 +71,12 @@ class Player:
             current = self.x - self.speed            
             temp = self.image.get_rect(bottomright=(current,self.y))
             for r in Rectangles:                            
+                if collide==True:
+                    break
                 if r.x < current - self.x_size: 
                     if pygame.Rect.colliderect(temp, r.rect)==1:                    
                         self.x = r.x + r.width + self.x_size
-                        collide=True
+                        collide=True                        
             if collide==False:
                 self.x = current            
             if self.x<=0:
@@ -87,7 +88,9 @@ class Player:
             collide=False
             current = self.x + self.speed            
             temp = self.image.get_rect(bottomright=(current,self.y))
-            for r in Rectangles:                            
+            for r in Rectangles:
+                if collide==True:
+                    break                            
                 if r.x > self.x-self.x_size:
                     if pygame.Rect.colliderect(temp, r.rect)==1:
                         self.x = r.x
