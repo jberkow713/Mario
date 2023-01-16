@@ -45,11 +45,10 @@ class Player:
                 self.y+=self.gravity
                 if self.y !=FLOOR:
                     self.floor = self.y
-                if self.y>=FLOOR:
-                    print('floor')
+                    self.can_jump=False
+                if self.y>=FLOOR:                    
                     self.y = FLOOR
                     self.floor=None
-
                     
         if self.can_jump==False:            
             current = self.y + self.gravity
@@ -76,8 +75,7 @@ class Player:
                 if pygame.Rect.colliderect(temp, r.rect)==0:
                     count+=1
             if count ==len(Rectangles):
-                self.x =current
-                                 
+                self.x =current                                 
                                                                    
         if keys[pygame.K_RIGHT]:            
             current = self.x + self.speed
@@ -98,9 +96,7 @@ class Player:
                             L.append(r)
                 elif self.floor==None:
                     if self.x >r.x and self.x-self.x_size< r.x + r.width:
-                        L.append(r)
-
-            print(L,self.floor)    
+                        L.append(r)           
                                   
             Lowest = 0
             for r in L:
@@ -118,8 +114,7 @@ class Player:
         if self.rect.left>=WIDTH:
             Rectangles.clear()
             self.map.build()
-            self.x = 0
-                    
+            self.x = 0                    
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
 
     def blit(self):
