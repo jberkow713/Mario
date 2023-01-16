@@ -63,32 +63,41 @@ class Player:
             self.y =current
             if self.y>=FLOOR:
                 self.y = FLOOR
-                self.can_jump=True
+                self.can_jump=True                
                 return
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            current = self.x - self.speed
-            if current<75:
-                self.x = 75
-                return
-            count = 0
+            collide=False
+            current = self.x - self.speed            
+            temp = self.image.get_rect(bottomright=(current,self.y))
             for r in Rectangles:                            
-                temp = self.image.get_rect(bottomright=(current,self.y))
-                if pygame.Rect.colliderect(temp, r.rect)==0:
-                    count+=1
-            if count ==len(Rectangles):
-                self.x =current                                 
+                if r.x < current - self.x_size: 
+                    if pygame.Rect.colliderect(temp, r.rect)==1:                    
+                        self.x = r.x + r.width + self.x_size
+                        collide=True
+            if collide==False:
+                self.x = current            
+            if self.x<=0:
+                Rectangles.clear()
+                self.map.build()
+                self.x = WIDTH+self.x_size                                        
                                                                    
         if keys[pygame.K_RIGHT]:            
-            current = self.x + self.speed
-            count = 0
+            collide=False
+            current = self.x + self.speed            
+            temp = self.image.get_rect(bottomright=(current,self.y))
             for r in Rectangles:                            
-                temp = self.image.get_rect(bottomright=(current,self.y))
-                if pygame.Rect.colliderect(temp, r.rect)==0:
-                    count+=1
-            if count ==len(Rectangles):
-                self.x =current                          
+                if r.x > self.x-self.x_size:
+                    if pygame.Rect.colliderect(temp, r.rect)==1:
+                        self.x = r.x
+                        collide=True
+            if collide==False:
+                self.x = current
+            if self.rect.left>=WIDTH:
+                Rectangles.clear()
+                self.map.build()
+                self.x = 0                              
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
@@ -118,10 +127,7 @@ class Player:
             self.y -= self.JUMP
             self.can_jump=False
             return        
-        if self.rect.left>=WIDTH:
-            Rectangles.clear()
-            self.map.build()
-            self.x = 0                    
+                     
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
 
     def blit(self):
