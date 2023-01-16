@@ -49,19 +49,22 @@ class Player:
                 if self.y>=FLOOR:                    
                     self.y = FLOOR
                     self.floor=None
+                    self.can_jump=True
                     
         if self.can_jump==False:            
             current = self.y + self.gravity
             for r in Rectangles:
                 temp = self.image.get_rect(bottomright=(self.x, current))
+                                    
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
                     return
-            self.y +=self.gravity
+            self.y =current
             if self.y>=FLOOR:
                 self.y = FLOOR
                 self.can_jump=True
+                return
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -90,11 +93,13 @@ class Player:
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
             for r in Rectangles:
+                # blocks above you when you're not on the floor
                 if self.floor != None:
                     if self.x >r.x and self.x-self.x_size< r.x + r.width:
                         if r.y <self.floor:
                             L.append(r)
                 elif self.floor==None:
+                    # blocks above you when on the floor
                     if self.x >r.x and self.x-self.x_size< r.x + r.width:
                         L.append(r)           
                                   
@@ -103,14 +108,16 @@ class Player:
                 if r.y>=Lowest:
                     Lowest = r.y 
             for r in L:
-                if r.y == Lowest:
-                    if self.y >r.y:                        
-                        if r.y +r.height >= self.y - self.JUMP:
-                            self.y = r.y + r.height+self.x_size 
-                            self.can_jump=False
-                            return  
+                if r.y == Lowest:                                        
+                    if r.y +r.height >= self.y - self.JUMP:
+                        self.y = r.y + r.height+self.y_size 
+                        self.can_jump=False
+                        # Blocked by the bottom of the block in your way
+                        return  
+            # Can make full jump
             self.y -= self.JUMP
-            self.can_jump=False        
+            self.can_jump=False
+            return        
         if self.rect.left>=WIDTH:
             Rectangles.clear()
             self.map.build()
@@ -164,6 +171,8 @@ class Map:
         self.colors = ['red', 'blue', 'green', 'orange']
         
     def build(self):
+        # TODO
+        # Smarter mapping function for better level creation
         tiles = []
         for _ in range(self.count):
             used = False
