@@ -2,6 +2,7 @@ import pygame
 import random
 from sys import exit
 from pygame.locals import  *
+import copy
 pygame.init()
 
 WIDTH=800
@@ -16,6 +17,7 @@ clock = pygame.time.Clock()
 Meteors = []
 Rectangles= []
 Coins = []
+Enemies = []
 
 class Player:
     # Character Movement, collision detection, etc.
@@ -211,7 +213,26 @@ class Map:
                 chance = random.randint(0,3)
                 if chance==3:
                     Coin(X.x+50,X.y, 50,50)            
+class Snail:
+    def __init__(self, x,speed):
+        self.x = x
+        self.original = copy.deepcopy(x)
+        self.speed = speed
+        self.image = pygame.image.load('snail1.png').convert_alpha()
+        self.rect = self.image.get_rect(bottomright=(self.x,700))
+        Enemies.append(self)
+        self.span = (self.rect.left,self.rect.right)
+        self.size = self.rect.right-self.rect.left    
+    def blit(self):
+        screen.blit(self.image,self.rect)        
+    def move(self):
+        self.rect.x -= self.speed
+        if self.rect.right <=0:
+            self.rect.left = WIDTH
 
+snails = [500,750]
+for x in snails:
+    Snail(x,3)
 #TODO Count counter display, health display, more enemies 
 
 P = Player(100)
@@ -226,7 +247,10 @@ while True:
     for r in Rectangles:
         r.blit()
     for c in Coins:
-        c.blit()    
+        c.blit()
+    for snail in Enemies:
+        snail.blit()
+        snail.move()        
     P.move()
     P.blit()
 
