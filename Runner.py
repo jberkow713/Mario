@@ -134,10 +134,10 @@ class Player:
                         self.can_jump=False
                         # Blocked by the bottom of the block in your way
                         return  
-            # Can make full jump
-            self.coin_check()
+            # Can make full jump            
             self.y -= self.JUMP
             self.can_jump=False
+            self.coin_check()
             return        
                      
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
