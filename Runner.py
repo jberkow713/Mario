@@ -49,7 +49,7 @@ class Player:
                 self.y+=self.gravity
                 if self.y !=FLOOR:
                     self.floor = self.y
-                    self.can_jump=False
+                    # self.can_jump=False
                 if self.y>=FLOOR:                    
                     self.y = FLOOR
                     self.floor=None
@@ -62,6 +62,7 @@ class Player:
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
+                    self.coin_check()
                     return
             self.y =current
             if self.y>=FLOOR:
@@ -148,31 +149,7 @@ class Player:
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
 
     def blit(self):
-        screen.blit(self.image,self.rect)                  
-
-class Meteor:
-    def __init__(self):
-        self.x = random.randint(50,750)
-        self.y = 0
-        self.speed = 5
-        self.image = pygame.image.load('Meteor.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (75, 50))
-        self.rect = self.image.get_rect(midtop=(self.x,self.y))
-        Meteors.append(self)          
-    def blit(self):
-        screen.blit(self.image,self.rect)        
-    def move(self):
-        self.rect.y += self.speed
-        if self.rect.top >=HEIGHT:
-            self.rect.bottom = 0
-            rework=False
-            while rework==False:
-                x = random.randint(50,750)
-                for m in Meteors:
-                    if m.rect.x!=x:
-                        self.rect.x = x
-                        rework=True
-                        break                    
+        screen.blit(self.image,self.rect)             
 
 class RECT:
     def __init__(self,color,x,y, width,height):
@@ -235,10 +212,8 @@ class Map:
                 if chance==3:
                     Coin(X.x+50,X.y, 50,50)            
 
-#TODO Count counter display, meteor health display, more enemies 
+#TODO Count counter display, health display, more enemies 
 
-for _ in range(5):
-    Meteor()
 P = Player(100)
 
 while True:
@@ -252,9 +227,6 @@ while True:
         r.blit()
     for c in Coins:
         c.blit()    
-    for meteor in Meteors:
-        meteor.move()
-        meteor.blit()    
     P.move()
     P.blit()
 
