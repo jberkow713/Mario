@@ -15,6 +15,7 @@ pygame.display.set_caption('Runner')
 clock = pygame.time.Clock()
 Meteors = []
 Rectangles= []
+Coins = []
 
 class Player:
     # Character Movement, collision detection, etc.
@@ -27,7 +28,7 @@ class Player:
         self.speed = 5
         self.floor = None
         self.can_jump=True
-        self.JUMP = 300
+        self.JUMP = 400
         self.x_size = 75
         self.y_size = 75
         self.gravity = 10
@@ -81,6 +82,7 @@ class Player:
                 self.x = current            
             if self.x<=0:
                 Rectangles.clear()
+                Coins.clear()
                 self.map.build()
                 self.x = WIDTH+self.x_size                                        
                                                                    
@@ -99,6 +101,7 @@ class Player:
                 self.x = current
             if self.rect.left>=WIDTH:
                 Rectangles.clear()
+                Coins.clear()
                 self.map.build()
                 self.x = 0                              
                 
@@ -172,6 +175,22 @@ class RECT:
     def blit(self):
         pygame.draw.rect(screen, self.color,self.rect)
 
+class Coin:
+    def __init__(self,x,y,width,height):
+        self.x = x 
+        self.y = y
+        self.width=width
+        self.height=height
+        self.image = pygame.image.load('COIN.png').convert_alpha()
+        
+        self.image.set_colorkey(BG_Color)
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect(midbottom=(self.x,self.y))        
+        self.colors = ['red', 'blue', 'green']
+        Coins.append(self)
+    def blit(self):
+        screen.blit(self.image,self.rect)
+
 class Map:
     def __init__(self, count):
         self.count = count
@@ -193,7 +212,17 @@ class Map:
                     tiles.append(loc)
                     used=True
         for x in tiles:
-            RECT(self.colors[random.randint(0,len(self.colors)-1)], x[0], x[1], 100,100 )
+            RECT(self.colors[random.randint(0,len(self.colors)-1)], x[0], x[1], 100,100)            
+        for X in Rectangles:
+            count = 0
+            for other in Rectangles:
+                if other.x == X.x:
+                    if X.y -X.height==other.y:
+                        count+=1
+            if count ==0:
+                chance = random.randint(0,3)
+                if chance==3:
+                    Coin(X.x+50,X.y, 50,50)            
         
 for _ in range(5):
     Meteor()
@@ -208,6 +237,8 @@ while True:
     screen.blit(ground,(0,FLOOR))    
     for r in Rectangles:
         r.blit()
+    for c in Coins:
+        c.blit()    
     for meteor in Meteors:
         meteor.move()
         meteor.blit()    
