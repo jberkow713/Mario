@@ -34,7 +34,10 @@ class Player:
         self.gravity = 10
         self.map = Map(8)
         self.map.build()
-
+    def coin_check(self):
+        for coin in Coins:
+            if pygame.Rect.colliderect(self.rect,coin.rect)==1:
+                Coins.remove(coin)
     def move(self):
         if self.can_jump==True and self.floor!=None:
             count = 0
@@ -84,7 +87,8 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
-                self.x = WIDTH+self.x_size                                        
+                self.x = WIDTH+self.x_size
+            self.coin_check()                                            
                                                                    
         if keys[pygame.K_RIGHT]:            
             collide=False
@@ -103,7 +107,8 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
-                self.x = 0                              
+                self.x = 0
+            self.coin_check()                                  
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
@@ -130,6 +135,7 @@ class Player:
                         # Blocked by the bottom of the block in your way
                         return  
             # Can make full jump
+            self.coin_check()
             self.y -= self.JUMP
             self.can_jump=False
             return        
