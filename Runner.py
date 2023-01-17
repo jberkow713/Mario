@@ -138,6 +138,11 @@ class Player:
             self.y -= self.JUMP
             self.can_jump=False
             self.coin_check()
+            if self.y<=-300:
+                Rectangles.clear()
+                Coins.clear()
+                self.map.build()
+                self.y = FLOOR
             return        
                      
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
@@ -201,7 +206,7 @@ class Map:
     def __init__(self, count):
         self.count = count
         self.x_locs = [50*x for x in range(2,13,2)]
-        self.y_locs = [50*y for y in range(2,13,2)]
+        self.y_locs = [50*y for y in range(2,12,2)]
         self.colors = ['red', 'blue', 'green', 'orange']
         
     def build(self):
@@ -229,7 +234,9 @@ class Map:
                 chance = random.randint(0,3)
                 if chance==3:
                     Coin(X.x+50,X.y, 50,50)            
-        
+
+#TODO Count counter display, meteor health display, more enemies 
+
 for _ in range(5):
     Meteor()
 P = Player(100)
