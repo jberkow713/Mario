@@ -18,6 +18,7 @@ Meteors = []
 Rectangles= []
 Coins = []
 Enemies = []
+Level = 0
 
 class Player:
     # Character Movement, collision detection, etc.
@@ -38,11 +39,13 @@ class Player:
         self.map.build()
         self.coins = 0
         self.health = 100
+
     def coin_check(self):
         for coin in Coins:
             if pygame.Rect.colliderect(self.rect,coin.rect)==1:
                 Coins.remove(coin)
                 self.coins +=1
+
     def move(self):
         if self.can_jump==True and self.floor!=None:
             count = 0
@@ -58,8 +61,7 @@ class Player:
                 if self.y>=FLOOR:                    
                     self.y = FLOOR
                     self.floor=None
-                    self.can_jump=True
-                    
+                    self.can_jump=True                    
         if self.can_jump==False:            
             current = self.y + self.gravity
             for r in Rectangles:
@@ -127,8 +129,7 @@ class Player:
                 elif self.floor==None:
                     # blocks above you when on the floor
                     if self.x >r.x and self.x-self.x_size< r.x + r.width:
-                        L.append(r)           
-                                  
+                        L.append(r)                                 
             Lowest = 0
             for r in L:
                 if r.y>=Lowest:
@@ -148,6 +149,9 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
+                self.health +=20
+                global Level 
+                Level +=1
                 self.y = FLOOR
             return        
                      
@@ -216,10 +220,10 @@ class Map:
                 if chance==3:
                     Coin(X.x+50,X.y, 50,50)            
 class Snail:
-    def __init__(self, x,speed,Player):
+    def __init__(self, x,speed, Player):
         self.x = x
         self.original = copy.deepcopy(x)
-        self.speed = speed
+        self.speed = speed + Level//5
         self.image = pygame.image.load('snail1.png').convert_alpha()
         self.rect = self.image.get_rect(bottomright=(self.x,700))
         Enemies.append(self)
@@ -229,6 +233,7 @@ class Snail:
     def blit(self):
         screen.blit(self.image,self.rect)        
     def move(self):
+
         self.rect.x -= self.speed
         if self.rect.right <=0:
             self.rect.left = WIDTH
@@ -268,5 +273,8 @@ while True:
     score_surface_2 = font.render(f'Health:{P.health}',False, 'Black')
     score_rect_2 = score_surface_2.get_rect(center=(700, 25))
     screen.blit(score_surface_2, score_rect_2)
+    score_surface_3 = font.render(f'Level:{Level}',False, 'Black')
+    score_rect_3 = score_surface_3.get_rect(center=(400, 25))
+    screen.blit(score_surface_3, score_rect_3)
     pygame.display.update()
     clock.tick(60)
