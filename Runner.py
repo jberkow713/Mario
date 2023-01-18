@@ -16,7 +16,7 @@ pygame.display.set_caption('Runner')
 clock = pygame.time.Clock()
 Meteors = []
 Rectangles= []
-Hearts = []
+Items = []
 Enemies = []
 Level = 0
 
@@ -25,35 +25,55 @@ class Player:
     def __init__(self, x):
         self.x = x
         self.y = FLOOR
+        self.x_size = 75
+        self.y_size = 75
         self.image = pygame.image.load('player_walk_1.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (75,75))
-        self.rect = self.image.get_rect(bottomright=(self.x,self.y))
+        self.rect = self.image.get_rect(bottomright=(self.x-37,self.y-37))        
         self.speed = 5
         self.floor = None
         self.can_jump=True
-        self.JUMP = 400
-        self.x_size = 75
-        self.y_size = 75
+        self.JUMP = 400        
         self.gravity = 10
-        self.map = Map(12)
+        self.map = Map(20)
         self.map.build()
         self.coins = 0
         self.health = 100
         self.direction = 'right'
         self.weapon = Weapon()
         self.defeated = []
+        self.jump_range=None
+        
+    
     def add_enemies(self):
         Enemies.clear()
-        e = [200,350,500,650]
+
+        e = [(x*200)-self.x for x in range(2,6)]
         for i in range(4):
             x = e[i] 
-            Snail(x,2,self)  
+            Snail(x,self)  
 
-    def heart_check(self):
-        for heart in Hearts:
-            if pygame.Rect.colliderect(self.rect,heart.rect)==1:
-                Hearts.remove(heart)
-                self.health +=10
+    def Item_check(self,jump=False):
+        if jump==True:
+            for item in Items:
+                for y in range(self.jump_range[0],self.jump_range[1],50):
+                    self.rect = self.image.get_rect(bottomright=(self.x-37,y))
+                    if pygame.Rect.colliderect(self.rect, item.rect)==1:
+                        
+                        if item.type=='Heart':
+                            self.health +=10
+                        elif item.type=='Coin':
+                            self.coins +=1
+                        Items.remove(item)
+                        break    
+        elif jump==False:
+            for item in Items:
+                if pygame.Rect.colliderect(self.rect,item.rect)==1:
+                    Items.remove(item)
+                    if item.type=='Heart':
+                        self.health +=10
+                    elif item.type=='Coin':
+                        self.coins +=1    
 
     def move(self):
         if self.can_jump==True and self.floor!=None:
@@ -64,6 +84,7 @@ class Player:
                     count+=1
             if count==len(Rectangles):
                 self.y+=self.gravity
+                self.Item_check()
                 if self.y !=FLOOR:
                     self.floor = self.y
                     # self.can_jump=False
@@ -78,7 +99,7 @@ class Player:
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
-                    self.heart_check()
+                    self.Item_check()
                     return
             self.y =current
             if self.y>=FLOOR:
@@ -102,12 +123,12 @@ class Player:
                 self.x = current            
             if self.x<=0:
                 Rectangles.clear()
-                Hearts.clear()
+                Items.clear()
                 self.map.build()
                 self.add_enemies()
                 self.x = WIDTH+self.x_size
             self.direction = 'left'    
-            self.heart_check()                                           
+            self.Item_check()                                          
                                                                    
         if keys[pygame.K_RIGHT]:
                       
@@ -125,13 +146,13 @@ class Player:
                 self.x = current
             if self.rect.left>=WIDTH:
                 Rectangles.clear()
-                Hearts.clear()
+                Items.clear()
                 self.map.build()
                 self.add_enemies()
                 self.x = 0
             self.direction='right'    
-            self.heart_check()                                
-                
+            self.Item_check()                               
+               
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
             for r in Rectangles:
@@ -155,13 +176,15 @@ class Player:
                         self.can_jump=False
                         # Blocked by the bottom of the block in your way
                         return  
-            # Can make full jump            
+            # Can make full jump
+            self.jump_range = (self.y-self.JUMP,self.y)            
+            self.Item_check(jump=True)
             self.y -= self.JUMP
             self.can_jump=False
-            self.heart_check()
+            
             if self.y<=-300:
                 Rectangles.clear()
-                Hearts.clear()
+                Items.clear()
                 self.map.build()
                 self.add_enemies()
                 self.health +=20
@@ -177,14 +200,20 @@ class Player:
                 self.weapon.blit('right',self.x+self.x_size-15,self.y+15)
             else:
                 self.weapon.blit('left',self.x-self.x_size+15, self.y+15)                
+            for block in Rectangles:
+                if self.weapon.sword_rect_offset.colliderect(block.rect):
+                    Rectangles.remove(block)
             for enemy in Enemies:
                 if self.weapon.sword_rect.colliderect(enemy.rect):
                     enemy.health-=1
                     if enemy.health<1:
-                        c = random.randint(0,3)                        
-                        if c==3:                            
-                            Heart(enemy.x,700)
-                        Enemies.remove(enemy)  
+                        Enemies.remove(enemy)
+                        c = random.randint(0,5)                        
+                        if c==0:
+                            Item(enemy.x,700,'Coin')
+                        elif c==1:                            
+                            Item(enemy.x,700,'Heart')
+                         
                     if self.direction == 'right':
                         enemy.rect.x +=150
                     elif self.direction =='left':
@@ -202,15 +231,20 @@ class Weapon:
         self.right = pygame.image.load('Sword_Right.png').convert_alpha()
         self.right = pygame.transform.scale(self.right, (75,75))
         self.sword_rect = None
+        self.sword_rect_offset = None
         # self.right.set_colorkey('white')
     def blit(self, direction,x,y):
         if direction == 'left':
             sword_rect = self.left.get_rect(bottomright=(x,y))
+            offset = self.left.get_rect(bottomright=(x,y-37))
             screen.blit(self.left, sword_rect)
         else:
             sword_rect = self.right.get_rect(bottomright=(x,y))
+            offset = self.right.get_rect(bottomright=(x,y-37))
             screen.blit(self.right,sword_rect)
         self.sword_rect = sword_rect
+        self.sword_rect_offset = offset
+        
         return
 class RECT:
     def __init__(self,color,x,y, width,height):
@@ -224,17 +258,21 @@ class RECT:
     def blit(self):
         pygame.draw.rect(screen, self.color,self.rect)
 
-class Heart:
-    def __init__(self,x,y):
+class Item:
+    def __init__(self,x,y,type):
         self.x = x 
         self.y = y
-        self.image = pygame.image.load('Heart.png').convert_alpha()        
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.type = type
+        self.type_dict = {'Heart':'Heart.png', 'Coin':'COIN.png'}
+        self.create_image()
         self.rect = self.image.get_rect(midbottom=(self.x,self.y))        
         self.colors = ['red', 'blue', 'green']
-        Hearts.append(self)
+        Items.append(self)
     def blit(self):
         screen.blit(self.image,self.rect)
+    def create_image(self):
+        self.image = pygame.image.load(self.type_dict[self.type])
+        self.image = pygame.transform.scale(self.image, (50, 50))
 
 class Map:
     def __init__(self, count):
@@ -266,13 +304,15 @@ class Map:
                         count+=1
             if count ==0:
                 chance = random.randint(0,3)
-                if chance==3:
-                    Heart(X.x+50,X.y)            
+                if chance==2:
+                    Item(X.x+50,X.y,'Coin')
+                elif chance==3:
+                    Item(X.x+50,X.y,'Heart')            
 class Snail:
-    def __init__(self, x,speed, Player):
+    def __init__(self, x, Player):
         self.x = x
         self.original = copy.deepcopy(x)
-        self.speed = speed + Level//5
+        self.speed = 2 + Level//5
         self.image = pygame.image.load('snail1.png').convert_alpha()
         self.rect = self.image.get_rect(bottomright=(self.x,700))
         Enemies.append(self)
@@ -294,7 +334,7 @@ class Snail:
 P = Player(100)
 snails = [200,400,600,750]
 for x in snails:
-    Snail(x,3,P)
+    Snail(x,P)
 #TODO Count counter display, health display, more enemies 
 
 while True:
@@ -306,19 +346,22 @@ while True:
     screen.blit(ground,(0,FLOOR))    
     for r in Rectangles:
         r.blit()
-    for h in Hearts:
-        h.blit()
+    for i in Items:
+        i.blit()
     for snail in Enemies:
         snail.blit()
         snail.move()        
     P.move()
     P.blit()
-
+    
     score_surface_1 = font.render(f'Health:{P.health}',False, 'Black')
     score_rect_1 = score_surface_1.get_rect(center=(75, 25))
     screen.blit(score_surface_1, score_rect_1)
     score_surface_2 = font.render(f'Level:{Level}',False, 'Black')
     score_rect_2 = score_surface_2.get_rect(center=(400, 25))
     screen.blit(score_surface_2, score_rect_2)
+    score_surface_3 = font.render(f'Coins:{P.coins}',False, 'Black')
+    score_rect_3 = score_surface_3.get_rect(center=(700, 25))
+    screen.blit(score_surface_3, score_rect_3)
     pygame.display.update()
     clock.tick(60)
