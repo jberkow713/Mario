@@ -20,6 +20,7 @@ Coins = []
 Enemies = []
 Level = 0
 
+
 class Player:
     # Character Movement, collision detection, etc.
     def __init__(self, x):
@@ -39,6 +40,15 @@ class Player:
         self.map.build()
         self.coins = 0
         self.health = 100
+        self.direction = 'right'
+        self.weapon = Weapon()
+        self.defeated = []
+    def add_enemies(self):
+        Enemies.clear()
+        e = [200,350,500,650]
+        for i in range(4):
+            x = e[i] 
+            Snail(x,3,P)  
 
     def coin_check(self):
         for coin in Coins:
@@ -95,10 +105,13 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
+                self.add_enemies()
                 self.x = WIDTH+self.x_size
+            self.direction = 'left'    
             self.coin_check()                                            
                                                                    
-        if keys[pygame.K_RIGHT]:            
+        if keys[pygame.K_RIGHT]:
+                      
             collide=False
             current = self.x + self.speed            
             temp = self.image.get_rect(bottomright=(current,self.y))
@@ -115,7 +128,9 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
+                self.add_enemies()
                 self.x = 0
+            self.direction='right'    
             self.coin_check()                                  
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
@@ -149,6 +164,7 @@ class Player:
                 Rectangles.clear()
                 Coins.clear()
                 self.map.build()
+                self.add_enemies()
                 self.health +=20
                 global Level 
                 Level +=1
@@ -156,10 +172,46 @@ class Player:
             return        
                      
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))
+        if keys[pygame.K_SPACE]:
+            
+            if self.direction=='right':
+                self.weapon.blit('right',self.x+self.x_size-15,self.y+15)
+            else:
+                self.weapon.blit('left',self.x-self.x_size+15, self.y+15)                
+            for enemy in Enemies:
+                if self.weapon.sword_rect.colliderect(enemy.rect):
+                    enemy.health-=1
+                    
+                    if self.direction == 'right':
+                        enemy.rect.x +=150
+                    elif self.direction =='left':
+                        enemy.rect.x -=150    
+                    if enemy.health<1:
+                        Enemies.remove(enemy)
+                    enemy.blit()
+                    
 
     def blit(self):
         screen.blit(self.image,self.rect)             
 
+class Weapon:
+    def __init__(self):
+        self.left = pygame.image.load('Sword_Left.jpg').convert_alpha()
+        self.left = pygame.transform.scale(self.left, (75,75))
+        self.left.set_colorkey('white')
+        self.right = pygame.image.load('Sword_Right.png').convert_alpha()
+        self.right = pygame.transform.scale(self.right, (75,75))
+        self.sword_rect = None
+        # self.right.set_colorkey('white')
+    def blit(self, direction,x,y):
+        if direction == 'left':
+            sword_rect = self.left.get_rect(bottomright=(x,y))
+            screen.blit(self.left, sword_rect)
+        else:
+            sword_rect = self.right.get_rect(bottomright=(x,y))
+            screen.blit(self.right,sword_rect)
+        self.sword_rect = sword_rect
+        return
 class RECT:
     def __init__(self,color,x,y, width,height):
         self.color = color
@@ -229,7 +281,8 @@ class Snail:
         Enemies.append(self)
         self.span = (self.rect.left,self.rect.right)
         self.size = self.rect.right-self.rect.left
-        self.Player = Player   
+        self.Player = Player
+        self.health = 4
     def blit(self):
         screen.blit(self.image,self.rect)        
     def move(self):
@@ -243,9 +296,8 @@ class Snail:
                 if self.Player.health <=0:
                     print('Game Over')
                     exit()
-
 P = Player(100)
-snails = [500,750]
+snails = [200,400,600,750]
 for x in snails:
     Snail(x,3,P)
 #TODO Count counter display, health display, more enemies 
@@ -266,6 +318,7 @@ while True:
         snail.move()        
     P.move()
     P.blit()
+    
 
     score_surface = font.render(f'Coins:{P.coins}',False, 'Black')
     score_rect_1 = score_surface.get_rect(center=(75, 25))
