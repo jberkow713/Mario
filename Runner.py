@@ -29,7 +29,7 @@ class Player:
         self.y_size = 75
         self.image = pygame.image.load('player_walk_1.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (75,75))
-        self.rect = self.image.get_rect(bottomright=(self.x-37,self.y-37))        
+        self.rect = self.image.get_rect(bottomright=(self.x,self.y))        
         self.speed = 5
         self.floor = None
         self.can_jump=True
@@ -56,16 +56,18 @@ class Player:
     def Item_check(self,jump=False):
         if jump==True:
             for item in Items:
-                for y in range(self.jump_range[0],self.jump_range[1],50):
-                    self.rect = self.image.get_rect(bottomright=(self.x-37,y))
-                    if pygame.Rect.colliderect(self.rect, item.rect)==1:
+                for y in range(self.jump_range[0],self.jump_range[1],25):
+                    
+                    self.rect = self.image.get_rect(bottomright=(self.x,y))
+                    if pygame.Rect.colliderect(self.rect, item.rect)==1:                        
                         
                         if item.type=='Heart':
                             self.health +=10
                         elif item.type=='Coin':
                             self.coins +=1
                         Items.remove(item)
-                        break    
+                        break
+            return            
         elif jump==False:
             for item in Items:
                 if pygame.Rect.colliderect(self.rect,item.rect)==1:
@@ -172,6 +174,8 @@ class Player:
             for r in L:
                 if r.y == Lowest:                                        
                     if r.y +r.height >= self.y - self.JUMP:
+                        self.jump_range = (r.y+r.height+self.y_size,self.y)            
+                        self.Item_check(jump=True)
                         self.y = r.y + r.height+self.y_size 
                         self.can_jump=False
                         # Blocked by the bottom of the block in your way
@@ -191,11 +195,9 @@ class Player:
                 global Level 
                 Level +=1
                 self.y = FLOOR
-            return        
-                     
-        self.rect = self.image.get_rect(bottomright=(self.x,self.y))
-        if keys[pygame.K_SPACE]:
+            return                       
             
+        if keys[pygame.K_SPACE]:            
             if self.direction=='right':
                 self.weapon.blit('right',self.x+self.x_size-15,self.y+15)
             else:
@@ -219,6 +221,7 @@ class Player:
                     elif self.direction =='left':
                         enemy.rect.x -=150                                     
                     enemy.blit()                   
+        self.rect = self.image.get_rect(bottomright=(self.x,self.y)) 
 
     def blit(self):
         screen.blit(self.image,self.rect)             
