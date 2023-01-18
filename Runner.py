@@ -16,7 +16,7 @@ pygame.display.set_caption('Runner')
 clock = pygame.time.Clock()
 Meteors = []
 Rectangles= []
-Coins = []
+Hearts = []
 Enemies = []
 Level = 0
 
@@ -36,7 +36,7 @@ class Player:
         self.x_size = 75
         self.y_size = 75
         self.gravity = 10
-        self.map = Map(8)
+        self.map = Map(12)
         self.map.build()
         self.coins = 0
         self.health = 100
@@ -48,13 +48,13 @@ class Player:
         e = [200,350,500,650]
         for i in range(4):
             x = e[i] 
-            Snail(x,3,P)  
+            Snail(x,2,self)  
 
-    def coin_check(self):
-        for coin in Coins:
-            if pygame.Rect.colliderect(self.rect,coin.rect)==1:
-                Coins.remove(coin)
-                self.coins +=1
+    def heart_check(self):
+        for heart in Hearts:
+            if pygame.Rect.colliderect(self.rect,heart.rect)==1:
+                Hearts.remove(heart)
+                self.health +=10
 
     def move(self):
         if self.can_jump==True and self.floor!=None:
@@ -79,7 +79,7 @@ class Player:
                 if pygame.Rect.colliderect(temp, r.rect)==1:
                     self.floor = self.y = r.y
                     self.can_jump=True
-                    self.coin_check()
+                    self.heart_check()
                     return
             self.y =current
             if self.y>=FLOOR:
@@ -103,12 +103,12 @@ class Player:
                 self.x = current            
             if self.x<=0:
                 Rectangles.clear()
-                Coins.clear()
+                Hearts.clear()
                 self.map.build()
                 self.add_enemies()
                 self.x = WIDTH+self.x_size
             self.direction = 'left'    
-            self.coin_check()                                            
+            self.heart_check()                                           
                                                                    
         if keys[pygame.K_RIGHT]:
                       
@@ -126,12 +126,12 @@ class Player:
                 self.x = current
             if self.rect.left>=WIDTH:
                 Rectangles.clear()
-                Coins.clear()
+                Hearts.clear()
                 self.map.build()
                 self.add_enemies()
                 self.x = 0
             self.direction='right'    
-            self.coin_check()                                  
+            self.heart_check()                                
                 
         if keys[pygame.K_RETURN] and self.can_jump==True:
             L = []
@@ -159,10 +159,10 @@ class Player:
             # Can make full jump            
             self.y -= self.JUMP
             self.can_jump=False
-            self.coin_check()
+            self.heart_check()
             if self.y<=-300:
                 Rectangles.clear()
-                Coins.clear()
+                Hearts.clear()
                 self.map.build()
                 self.add_enemies()
                 self.health +=20
@@ -181,15 +181,16 @@ class Player:
             for enemy in Enemies:
                 if self.weapon.sword_rect.colliderect(enemy.rect):
                     enemy.health-=1
-                    
+                    if enemy.health<1:
+                        c = random.randint(0,3)                        
+                        if c==3:                            
+                            Heart(enemy.x,700)
+                        Enemies.remove(enemy)  
                     if self.direction == 'right':
                         enemy.rect.x +=150
                     elif self.direction =='left':
-                        enemy.rect.x -=150    
-                    if enemy.health<1:
-                        Enemies.remove(enemy)
-                    enemy.blit()
-                    
+                        enemy.rect.x -=150                                     
+                    enemy.blit()                   
 
     def blit(self):
         screen.blit(self.image,self.rect)             
@@ -224,18 +225,15 @@ class RECT:
     def blit(self):
         pygame.draw.rect(screen, self.color,self.rect)
 
-class Coin:
-    def __init__(self,x,y,width,height):
+class Heart:
+    def __init__(self,x,y):
         self.x = x 
         self.y = y
-        self.width=width
-        self.height=height
-        self.image = pygame.image.load('COIN.png').convert_alpha()        
-        self.image.set_colorkey(BG_Color)
+        self.image = pygame.image.load('Heart.png').convert_alpha()        
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(midbottom=(self.x,self.y))        
         self.colors = ['red', 'blue', 'green']
-        Coins.append(self)
+        Hearts.append(self)
     def blit(self):
         screen.blit(self.image,self.rect)
 
@@ -270,7 +268,7 @@ class Map:
             if count ==0:
                 chance = random.randint(0,3)
                 if chance==3:
-                    Coin(X.x+50,X.y, 50,50)            
+                    Heart(X.x+50,X.y)            
 class Snail:
     def __init__(self, x,speed, Player):
         self.x = x
@@ -279,17 +277,15 @@ class Snail:
         self.image = pygame.image.load('snail1.png').convert_alpha()
         self.rect = self.image.get_rect(bottomright=(self.x,700))
         Enemies.append(self)
-        self.span = (self.rect.left,self.rect.right)
-        self.size = self.rect.right-self.rect.left
         self.Player = Player
         self.health = 4
     def blit(self):
         screen.blit(self.image,self.rect)        
     def move(self):
-
         self.rect.x -= self.speed
         if self.rect.right <=0:
             self.rect.left = WIDTH
+        self.x = self.rect.x    
         if self.Player.rect.right<=WIDTH and self.rect.right<=WIDTH:
             if self.Player.rect.colliderect(self.rect):
                 self.Player.health-=1
@@ -311,8 +307,8 @@ while True:
     screen.blit(ground,(0,FLOOR))    
     for r in Rectangles:
         r.blit()
-    for c in Coins:
-        c.blit()
+    for h in Hearts:
+        h.blit()
     for snail in Enemies:
         snail.blit()
         snail.move()        
@@ -320,9 +316,9 @@ while True:
     P.blit()
     
 
-    score_surface = font.render(f'Coins:{P.coins}',False, 'Black')
-    score_rect_1 = score_surface.get_rect(center=(75, 25))
-    screen.blit(score_surface, score_rect_1)
+    # score_surface = font.render(f'Coins:{P.coins}',False, 'Black')
+    # score_rect_1 = score_surface.get_rect(center=(75, 25))
+    # screen.blit(score_surface, score_rect_1)
     score_surface_2 = font.render(f'Health:{P.health}',False, 'Black')
     score_rect_2 = score_surface_2.get_rect(center=(700, 25))
     screen.blit(score_surface_2, score_rect_2)
