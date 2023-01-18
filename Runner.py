@@ -20,7 +20,6 @@ Hearts = []
 Enemies = []
 Level = 0
 
-
 class Player:
     # Character Movement, collision detection, etc.
     def __init__(self, x):
@@ -314,16 +313,12 @@ while True:
         snail.move()        
     P.move()
     P.blit()
-    
 
-    # score_surface = font.render(f'Coins:{P.coins}',False, 'Black')
-    # score_rect_1 = score_surface.get_rect(center=(75, 25))
-    # screen.blit(score_surface, score_rect_1)
-    score_surface_2 = font.render(f'Health:{P.health}',False, 'Black')
-    score_rect_2 = score_surface_2.get_rect(center=(700, 25))
+    score_surface_1 = font.render(f'Health:{P.health}',False, 'Black')
+    score_rect_1 = score_surface_1.get_rect(center=(75, 25))
+    screen.blit(score_surface_1, score_rect_1)
+    score_surface_2 = font.render(f'Level:{Level}',False, 'Black')
+    score_rect_2 = score_surface_2.get_rect(center=(400, 25))
     screen.blit(score_surface_2, score_rect_2)
-    score_surface_3 = font.render(f'Level:{Level}',False, 'Black')
-    score_rect_3 = score_surface_3.get_rect(center=(400, 25))
-    screen.blit(score_surface_3, score_rect_3)
     pygame.display.update()
     clock.tick(60)
