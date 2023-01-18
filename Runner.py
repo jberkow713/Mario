@@ -36,10 +36,13 @@ class Player:
         self.gravity = 10
         self.map = Map(8)
         self.map.build()
+        self.coins = 0
+        self.health = 100
     def coin_check(self):
         for coin in Coins:
             if pygame.Rect.colliderect(self.rect,coin.rect)==1:
                 Coins.remove(coin)
+                self.coins +=1
     def move(self):
         if self.can_jump==True and self.floor!=None:
             count = 0
@@ -171,8 +174,7 @@ class Coin:
         self.y = y
         self.width=width
         self.height=height
-        self.image = pygame.image.load('COIN.png').convert_alpha()
-        
+        self.image = pygame.image.load('COIN.png').convert_alpha()        
         self.image.set_colorkey(BG_Color)
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(midbottom=(self.x,self.y))        
@@ -185,7 +187,7 @@ class Map:
     def __init__(self, count):
         self.count = count
         self.x_locs = [50*x for x in range(2,13,2)]
-        self.y_locs = [50*y for y in range(2,12,2)]
+        self.y_locs = [50*y for y in range(2,11,2)]
         self.colors = ['red', 'blue', 'green', 'orange']
         
     def build(self):
@@ -214,7 +216,7 @@ class Map:
                 if chance==3:
                     Coin(X.x+50,X.y, 50,50)            
 class Snail:
-    def __init__(self, x,speed):
+    def __init__(self, x,speed,Player):
         self.x = x
         self.original = copy.deepcopy(x)
         self.speed = speed
@@ -222,20 +224,26 @@ class Snail:
         self.rect = self.image.get_rect(bottomright=(self.x,700))
         Enemies.append(self)
         self.span = (self.rect.left,self.rect.right)
-        self.size = self.rect.right-self.rect.left    
+        self.size = self.rect.right-self.rect.left
+        self.Player = Player   
     def blit(self):
         screen.blit(self.image,self.rect)        
     def move(self):
         self.rect.x -= self.speed
         if self.rect.right <=0:
             self.rect.left = WIDTH
-
-snails = [500,750]
-for x in snails:
-    Snail(x,3)
-#TODO Count counter display, health display, more enemies 
+        if self.Player.rect.right<=WIDTH and self.rect.right<=WIDTH:
+            if self.Player.rect.colliderect(self.rect):
+                self.Player.health-=1
+                if self.Player.health <=0:
+                    print('Game Over')
+                    exit()
 
 P = Player(100)
+snails = [500,750]
+for x in snails:
+    Snail(x,3,P)
+#TODO Count counter display, health display, more enemies 
 
 while True:
     for event in pygame.event.get():
@@ -254,5 +262,11 @@ while True:
     P.move()
     P.blit()
 
+    score_surface = font.render(f'Coins:{P.coins}',False, 'Black')
+    score_rect_1 = score_surface.get_rect(center=(75, 25))
+    screen.blit(score_surface, score_rect_1)
+    score_surface_2 = font.render(f'Health:{P.health}',False, 'Black')
+    score_rect_2 = score_surface_2.get_rect(center=(700, 25))
+    screen.blit(score_surface_2, score_rect_2)
     pygame.display.update()
     clock.tick(60)
