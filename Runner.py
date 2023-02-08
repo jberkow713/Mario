@@ -35,15 +35,14 @@ class Player:
         self.can_jump=True
         self.JUMP = 400        
         self.gravity = 10
-        self.map = Map(20)
+        self.map = Map(15)
         self.map.build()
         self.coins = 0
         self.health = 100
         self.direction = 'right'
         self.weapon = Weapon()
         self.defeated = []
-        self.jump_range=None
-        
+        self.jump_range=None        
     
     def add_enemies(self):
         Enemies.clear()
