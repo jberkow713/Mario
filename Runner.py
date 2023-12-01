@@ -27,7 +27,7 @@ class Player:
         self.y = FLOOR
         self.x_size = 75
         self.y_size = 75
-        self.image = pygame.image.load('player_walk_1.png').convert_alpha()
+        self.image = pygame.image.load('toadette.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (75,75))
         self.rect = self.image.get_rect(bottomright=(self.x,self.y))        
         self.speed = 5
