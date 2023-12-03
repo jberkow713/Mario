@@ -323,16 +323,23 @@ class Snail:
     def blit(self):
         screen.blit(self.image,self.rect)        
     def move(self):
-        if self.rect.x >= self.Player.x:
-            self.rect.x -= self.speed
+        if self.Player.y ==700:
+            if self.rect.x >= self.Player.x:
+                self.rect.x -= self.speed
+                if self.rect.right <=0:
+                    self.rect.left = WIDTH
+                self.x = self.rect.x
+            elif self.rect.x <=self.Player.x:
+                self.rect.x +=self.speed 
+                if self.rect.left >=WIDTH:
+                    self.rect.right = 0
+                self.x = self.rect.x
+        else:
+            self.rect.x -=self.speed 
             if self.rect.right <=0:
                 self.rect.left = WIDTH
             self.x = self.rect.x
-        elif self.rect.x <=self.Player.x:
-            self.rect.x +=self.speed 
-            if self.rect.left >=WIDTH:
-                self.rect.right = 0
-            self.x = self.rect.x            
+                                
         if self.Player.rect.right<=WIDTH and self.rect.right<=WIDTH:
             if self.Player.rect.colliderect(self.rect):
                 self.Player.health-=1
