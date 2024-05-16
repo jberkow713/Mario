@@ -17,14 +17,15 @@ gaps = []
 ground = []
 
 class Ground:
-    def __init__(self, start, end):
+    def __init__(self, start, end, y):
         self.start = start        
         self.end = end
+        self.y = y 
         self.size = self.end-self.start 
-        gaps.append([self.start,self.end])
+        gaps.append([self.start,self.end, self.y])
         self.image = pygame.image.load('ground.png')
         self.image = pygame.transform.scale(self.image, (self.size,100))
-        self.rect = self.image.get_rect(topleft=(self.start,700))
+        self.rect = self.image.get_rect(topleft=(self.start,self.y ))
         ground.append(self)
 
     def blit(self):
@@ -111,7 +112,7 @@ class Level:
         self.player.move()
         self.player.blit()
 
-L = Level(0,[Ground(0,300), Ground(500,800)])
+L = Level(0,[Ground(0,300,700), Ground(500,800,700)])
 
 while True:
     for event in pygame.event.get():
