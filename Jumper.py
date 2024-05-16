@@ -64,15 +64,15 @@ class Player:
         count = 0
         for val in gaps:
             if self.last_key !='l':
-                v0,v1 = val[0],val[1]
+                v0,v1,v2 = val[0],val[1],val[2]
             else:
-                v0,v1 = val[0]-self.x_size,val[1]-self.x_size    
+                v0,v1,v2 = val[0]-self.x_size,val[1]-self.x_size,val[2]    
             if self.rect.x >= v0 and self.rect.x <=v1:
                 if self.can_jump==False:
                     self.rect.y +=10
-                    if self.rect.y>=625:
+                    if self.rect.y>=val[2]-self.y_size:
                         self.can_jump=True
-                        self.rect.y=625 
+                        self.rect.y=val[2]-self.y_size 
                 
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_LEFT]:
@@ -112,7 +112,7 @@ class Level:
         self.player.move()
         self.player.blit()
 
-L = Level(0,[Ground(0,300,700), Ground(500,800,700)])
+L = Level(0,[Ground(0,300,700), Ground(500,800,600)])
 
 while True:
     for event in pygame.event.get():
