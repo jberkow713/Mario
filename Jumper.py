@@ -32,10 +32,10 @@ class Ground:
         screen.blit(self.image,self.rect)
 class Player:
     # Character Movement, collision detection, etc.
-    def __init__(self, x):
+    def __init__(self, x,y):
         self.x = x
         self.start_x = copy.deepcopy(self.x)
-        self.y = FLOOR
+        self.y = y
         self.x_size = 75
         self.y_size = 75
         self.speed = 10
@@ -102,17 +102,16 @@ class Player:
                 self.rect.x -=self.speed               
            
 class Level:
-    def __init__(self,player_x, grounds):
-        self.player = Player(player_x)
+    def __init__(self, grounds):        
         self.ground = grounds
         
     def blit(self):
         for ground in self.ground:
             ground.blit()
-        self.player.move()
-        self.player.blit()
+        
 
-L = Level(0,[Ground(0,300,700), Ground(500,800,600)])
+P = Player(0,500)
+L = Level([Ground(0,300,P.y), Ground(500,800,600)])
 
 while True:
     for event in pygame.event.get():
@@ -122,6 +121,8 @@ while True:
     screen.fill(BG_Color)
     # L.rebuild()
     L.blit()
+    P.move()
+    P.blit()
     
     pygame.display.update()
     clock.tick(60)    
