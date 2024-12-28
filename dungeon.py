@@ -19,22 +19,33 @@ class Player:
     def blit(self):
         pygame.draw.rect(screen, (255,0,0), self.rect)
     def move(self):
-        buffer = self.rect[2]/2                
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            if self.rect.center[0]>buffer:
+            spot = self.rect.left - self.speed
+            if spot>0:
                 self.rect.x -= self.speed
+            else:
+                self.rect.left = 0
         if keys[pygame.K_RIGHT]:
-            if self.rect.center[0] +buffer<SCREEN_WIDTH:
+            spot = self.rect.right + self.speed
+            if spot<SCREEN_WIDTH:
                 self.rect.x +=self.speed
+            else:
+                self.rect.right = SCREEN_WIDTH
         if keys[pygame.K_UP]:
-            if self.rect.center[1]>buffer:
+            spot = self.rect.top - self.speed
+            if spot>0:
                 self.rect.y -=self.speed
+            else:
+                self.rect.top = 0   
         if keys[pygame.K_DOWN]:
-            if self.rect.center[1]+buffer < SCREEN_HEIGHT:
-                self.rect.y +=self.speed                                 
+            spot = self.rect.bottom + self.speed
+            if spot < SCREEN_HEIGHT:
+                self.rect.y +=self.speed
+            else:
+                self.rect.bottom = SCREEN_HEIGHT                                     
 
-p = Player(200,200)
+p = Player(207,207)
 
 run = True 
 while run:
