@@ -22,8 +22,7 @@ class Player:
         buffer = self.rect[2]/2                
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-          
-          if self.rect.center[0]>buffer:
+            if self.rect.center[0]>buffer:
                 self.rect.x -= self.speed
         if keys[pygame.K_RIGHT]:
             if self.rect.center[0] +buffer<SCREEN_WIDTH:
@@ -39,14 +38,12 @@ p = Player(200,200)
 
 run = True 
 while run:
-    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run=False 
     screen.fill(BG_Color)
     p.move()
     p.blit()
-    
     pygame.display.update()
     clock.tick(60)    
 
