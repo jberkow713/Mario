@@ -3,8 +3,8 @@ import pygame.display
 import random  
 
 pygame.init()
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
 BG_Color = (64,124,200)
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
@@ -54,15 +54,22 @@ class Enemy:
         self.rect.center = (x,y)
         self.x = x 
         self.y = y
-        self.speed = 2
+        self.speed = random.randint(2,4)
         self.dirs = ['u','d','l','r']
+        self.colors = [(255,0,0), (0,255,0), (0,0,255)]
+        self.color = random.choice(self.colors)
         self.dir = random.choice(self.dirs)
         Enemies.append(self)
         
+        
     def blit(self):
-        pygame.draw.rect(screen, (0,255,0), self.rect)
+        pygame.draw.rect(screen, self.color, self.rect)
     def move(self):
         
+        if random.randint(0,100)>98:
+            self.dir = random.choice(self.dirs)
+            self.speed = random.randint(2,4)
+
         if self.dir == 'u':
             spot = self.rect.top - self.speed
             if spot>0:
