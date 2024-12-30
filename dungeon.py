@@ -3,14 +3,15 @@ import pygame.display
 import random  
 
 pygame.init()
+pygame.font.init()
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 BG_Color = (64,124,200)
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-pygame.display.set_caption('Dungeon Crawler')
 
 Enemies = []
+Player = None
 
 class Player:
     def __init__(self, x,y):
@@ -19,9 +20,34 @@ class Player:
         self.x = x 
         self.y = y
         self.speed = 5
+        self.health = 100
+        self.hit_reset = 0
+        self.can_hit = True 
+     
+    def clock_reset(self):
+        self.hit_reset+=1
+        if self.hit_reset == 20:
+            self.can_hit = True
+            self.hit_reset = 0
+    def display_health(self):
+        font = pygame.font.SysFont("comicsans", 40, True)    
+        text = font.render(f'Health: {self.health}', 1, (255,0,0)) 
+        screen.blit(text, (750, 0))
+    
     def blit(self):
         pygame.draw.rect(screen, (255,0,0), self.rect)
+    
     def move(self):
+        if self.can_hit == False:
+            self.clock_reset()
+
+        for e in Enemies:
+            if p.rect.colliderect(e.rect):
+                if self.can_hit == True:
+                    self.health -=1
+                    print(self.health)
+                    self.can_hit = False
+
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             spot = self.rect.left - self.speed
@@ -37,10 +63,10 @@ class Player:
                 self.rect.right = SCREEN_WIDTH
         if keys[pygame.K_UP]:
             spot = self.rect.top - self.speed
-            if spot>0:
+            if spot>25:
                 self.rect.y -=self.speed
             else:
-                self.rect.top = 0   
+                self.rect.top = 25   
         if keys[pygame.K_DOWN]:
             spot = self.rect.bottom + self.speed
             if spot < SCREEN_HEIGHT:
@@ -61,21 +87,26 @@ class Enemy:
         self.dir = random.choice(self.dirs)
         Enemies.append(self)
         
-        
     def blit(self):
         pygame.draw.rect(screen, self.color, self.rect)
+    
     def move(self):
-        
+        # dir changes
+        other = random.choice([x for x in self.dirs if x!=self.dir])
+        for e in Enemies:
+            if e!= self:
+                if self.rect.colliderect(e.rect):
+                    self.dir = other
+                    
         if random.randint(0,100)>98:
             self.dir = random.choice(self.dirs)
             self.speed = random.randint(2,4)
-
         if self.dir == 'u':
             spot = self.rect.top - self.speed
-            if spot>0:
+            if spot>25:
                 self.rect.y -=self.speed
             else:
-                self.rect.top = 0
+                self.rect.top = 25
                 self.dir = 'd'
         if self.dir == 'd':
             spot = self.rect.bottom + self.speed
@@ -99,11 +130,9 @@ class Enemy:
                 self.rect.left = 0
                 self.dir = 'r'
 
-
 p = Player(207,207)
-e = Enemy(100,100)
-e2 = Enemy(150,150)
-e3 = Enemy(400,500)
+for _ in range(10):
+    e = Enemy(random.randint(25,SCREEN_HEIGHT), random.randint(25,SCREEN_WIDTH))
 
 run = True 
 while run:
@@ -113,13 +142,11 @@ while run:
     screen.fill(BG_Color)
     p.move()
     p.blit()
-        
+    p.display_health()
     for E in Enemies:
         E.move()
         E.blit()
-        if p.rect.colliderect(E.rect):
-            print('collision')
-
+        
     pygame.display.update()
     clock.tick(60)    
 
