@@ -56,7 +56,7 @@ class Player:
         for e in Enemies:
             if p.rect.colliderect(e.rect):
                 if self.can_hit == True:
-                    self.health -=1
+                    self.health -=20
                     print(self.health)
                     self.can_hit = False
 
@@ -89,7 +89,7 @@ class Coin:
     def __init__(self, x,y):
         self.x = x 
         self.y =y 
-        self.image = pygame.image.load('COIN.png').convert_alpha()
+        self.image = pygame.image.load('COIN.png')
         self.image = pygame.transform.scale(self.image, (25,25))
         self.rect = self.image.get_rect(bottomleft=(self.x,self.y))
         Coins.append(self)
@@ -102,7 +102,7 @@ class Enemy:
         self.rect.center = (x,y)
         self.x = x 
         self.y = y
-        self.speed = random.randint(2,4)
+        self.speed = random.randint(4,7)
         self.dirs = ['u','d','l','r']
         self.colors = [(255,0,0), (0,255,0), (0,0,255)]
         self.color = random.choice(self.colors)
