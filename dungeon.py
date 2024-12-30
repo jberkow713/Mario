@@ -11,8 +11,15 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 Enemies = []
+Coins= []
+Lasers = []
+
 Player = None
 
+def create_coins(num):
+    for _ in range(num):
+        Coin(random.randint(25,SCREEN_WIDTH), random.randint(25,SCREEN_HEIGHT))
+    return     
 class Player:
     def __init__(self, x,y):
         self.rect = pygame.Rect(0,0,40,40)
@@ -26,7 +33,7 @@ class Player:
      
     def clock_reset(self):
         self.hit_reset+=1
-        if self.hit_reset == 20:
+        if self.hit_reset == 15:
             self.can_hit = True
             self.hit_reset = 0
     def display_health(self):
@@ -40,6 +47,11 @@ class Player:
     def move(self):
         if self.can_hit == False:
             self.clock_reset()
+
+        for c in Coins:
+            if p.rect.colliderect(c.rect):
+                Coins.remove(c)
+                self.health +=10
 
         for e in Enemies:
             if p.rect.colliderect(e.rect):
@@ -73,7 +85,17 @@ class Player:
                 self.rect.y +=self.speed
             else:
                 self.rect.bottom = SCREEN_HEIGHT                                     
+class Coin:
+    def __init__(self, x,y):
+        self.x = x 
+        self.y =y 
+        self.image = pygame.image.load('COIN.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (25,25))
+        self.rect = self.image.get_rect(bottomleft=(self.x,self.y))
+        Coins.append(self)
 
+    def blit(self):
+        screen.blit(self.image,self.rect)    
 class Enemy:
     def __init__(self, x,y):
         self.rect = pygame.Rect(0,0,25,25)
@@ -131,6 +153,8 @@ class Enemy:
                 self.dir = 'r'
 
 p = Player(207,207)
+
+
 for _ in range(10):
     e = Enemy(random.randint(25,SCREEN_HEIGHT), random.randint(25,SCREEN_WIDTH))
 
@@ -140,9 +164,16 @@ while run:
         if event.type == pygame.QUIT:
             run=False 
     screen.fill(BG_Color)
+    if Coins == []:
+        create_coins(2)
+    
     p.move()
     p.blit()
     p.display_health()
+    
+    for coin in Coins:
+        coin.blit()
+
     for E in Enemies:
         E.move()
         E.blit()
