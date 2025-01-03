@@ -50,11 +50,13 @@ class Player:
         if self.hit_reset == 15:
             self.can_hit = True
             self.hit_reset = 0
+    
     def laser_reset(self):
         self.Laser_reset+=1
         if self.Laser_reset == 25:
             self.can_shoot = True
             self.Laser_reset = 0        
+    
     def display_health(self):
         font = pygame.font.SysFont("comicsans", 40, True)    
         text = font.render(f'Health: {self.health}', 1, (255,0,0)) 
@@ -85,8 +87,7 @@ class Player:
             if self.dir =='d':
                 Laser((self.rect.x + mid,self.rect.y + self.rect[3]),5,self.dir)
             if self.dir == 'u':
-                Laser((self.rect.x + mid, self.rect.y), 5, self.dir)    
-
+                Laser((self.rect.x + mid, self.rect.y), 5, self.dir)
 
     def move(self):
         if self.total_coins == 10:
@@ -221,8 +222,7 @@ class Enemy:
                     self.dir = other
                     
         if random.randint(0,100)>98:
-            self.dir = random.choice(self.dirs)
-            
+            self.dir = random.choice(self.dirs)            
         if self.dir == 'u':
             spot = self.rect.top - self.speed
             if spot>25:
@@ -253,23 +253,21 @@ class Enemy:
                 self.dir = 'r'
 
 p = Player(207,207)
-run = True 
+Run = True 
 
-while run:
+while Run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT or p.health<=0:
-            run=False 
+            Run=False 
     screen.fill(BG_Color)
     if Coins == []:
         create_coins(2)
-
     p.move()
     p.blit()
     
     for l in Lasers:
         l.move()
         l.blit()
-
     for coin in Coins:
         coin.blit()
     for E in Enemies:
