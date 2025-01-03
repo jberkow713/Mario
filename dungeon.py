@@ -24,7 +24,8 @@ def create_enemies(num):
     Enemies.clear()
     for _ in range(num):
         speed = random.randint(4,7)*Speed_multiplier
-        Enemy(random.randint(25,SCREEN_HEIGHT-25), random.randint(25,SCREEN_WIDTH-25), speed)
+        size = random.randint(25,50)
+        Enemy((size,size),random.randint(size,SCREEN_HEIGHT-size), random.randint(size,SCREEN_WIDTH-size), speed)
     return     
 
 class Player:
@@ -122,8 +123,8 @@ class Coin:
     def blit(self):
         screen.blit(self.image,self.rect)    
 class Enemy:
-    def __init__(self, x,y,speed):
-        self.rect = pygame.Rect(0,0,25,25)
+    def __init__(self, size,x,y,speed):
+        self.rect = pygame.Rect(0,0,size[0],size[1])
         self.rect.center = (x,y)
         self.x = x 
         self.y = y
@@ -153,28 +154,28 @@ class Enemy:
             if spot>25:
                 self.rect.y -=self.speed 
             else:
-                self.rect.top = 25
+                self.rect.top = self.rect[3]
                 self.dir = 'd'
         if self.dir == 'd':
             spot = self.rect.bottom + self.speed
             if spot < SCREEN_HEIGHT:
                 self.rect.y +=self.speed
             else:
-                self.rect.bottom = SCREEN_HEIGHT
+                self.rect.bottom = SCREEN_HEIGHT-self.rect[3]
                 self.dir = 'u'
         if self.dir == 'r':
             spot = self.rect.right + self.speed
             if spot<SCREEN_WIDTH:
                 self.rect.x +=self.speed
             else:
-                self.rect.right = SCREEN_WIDTH
+                self.rect.right = SCREEN_WIDTH-self.rect[2]
                 self.dir = 'l'
         if self.dir == 'l':
             spot = self.rect.left - self.speed
             if spot>0:
                 self.rect.x -= self.speed
             else:
-                self.rect.left = 0
+                self.rect.left = self.rect[2]
                 self.dir = 'r'
 
 p = Player(207,207)
