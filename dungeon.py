@@ -37,9 +37,12 @@ class Player:
         self.speed = 5
         self.health = 100
         self.hit_reset = 0
+        self.Laser_reset = 0
         self.can_hit = True
+        self.can_shoot = True
         self.coins = 0
         self.total_coins = 0
+        self.dir = None 
         create_enemies(random.randint(5,10))
             
     def clock_reset(self):
@@ -47,6 +50,11 @@ class Player:
         if self.hit_reset == 15:
             self.can_hit = True
             self.hit_reset = 0
+    def laser_reset(self):
+        self.Laser_reset+=1
+        if self.Laser_reset == 25:
+            self.can_shoot = True
+            self.Laser_reset = 0        
     def display_health(self):
         font = pygame.font.SysFont("comicsans", 40, True)    
         text = font.render(f'Health: {self.health}', 1, (255,0,0)) 
@@ -62,6 +70,24 @@ class Player:
         self.display_health()
         pygame.draw.rect(screen, (255,0,0), self.rect)
     
+    def shoot_laser(self):
+        self.can_shoot = False
+        mid = self.rect[2] / 2 
+        if self.dir == None:
+            Laser((self.x+mid,self.y),5,'u')
+        else:
+            mid_down = self.rect[3]/2
+            if self.dir == 'l':                 
+                Laser((self.rect.x,self.rect.y+mid_down),5,self.dir)
+            if self.dir == 'r':
+                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),5,self.dir)
+
+            if self.dir =='d':
+                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),5,self.dir)
+            if self.dir == 'u':
+                Laser((self.rect.x + mid, self.rect.y), 5, self.dir)    
+
+
     def move(self):
         if self.total_coins == 10:
             global Speed_multiplier
@@ -71,7 +97,10 @@ class Player:
         
         if self.can_hit == False:
             self.clock_reset()
-
+        
+        if self.can_shoot == False:
+            self.laser_reset()
+        
         for c in Coins:
             if p.rect.colliderect(c.rect):
                 Coins.remove(c)
@@ -93,24 +122,31 @@ class Player:
                 self.rect.x -= self.speed
             else:
                 self.rect.left = 0
+            self.dir = 'l'    
         if keys[pygame.K_RIGHT]:
             spot = self.rect.right + self.speed
             if spot<SCREEN_WIDTH:
                 self.rect.x +=self.speed
             else:
                 self.rect.right = SCREEN_WIDTH
+            self.dir = 'r'       
         if keys[pygame.K_UP]:
             spot = self.rect.top - self.speed
             if spot>25:
                 self.rect.y -=self.speed
             else:
-                self.rect.top = 25   
+                self.rect.top = 25
+            self.dir = 'u'         
         if keys[pygame.K_DOWN]:
             spot = self.rect.bottom + self.speed
             if spot < SCREEN_HEIGHT:
                 self.rect.y +=self.speed
             else:
-                self.rect.bottom = SCREEN_HEIGHT                                     
+                self.rect.bottom = SCREEN_HEIGHT
+            self.dir = 'd'
+        if keys[pygame.K_SPACE]:
+            if self.can_shoot==True:
+                self.shoot_laser()                                               
 class Coin:
     def __init__(self, x,y):
         self.x = x 
@@ -121,7 +157,45 @@ class Coin:
         Coins.append(self)
 
     def blit(self):
-        screen.blit(self.image,self.rect)    
+        screen.blit(self.image,self.rect)
+
+class Laser():
+    def __init__(self,pos,speed,dir):
+        if dir == 'u' or dir == 'd':
+            POS = 4,20
+        else:
+            POS = 20,4     
+        self.rect = pygame.Rect(0,0,POS[0],POS[1])
+        self.rect.center = pos
+        self.colors = [(255,0,0), (0,255,0), (0,0,255)]
+        self.color = random.choice(self.colors)
+        self.speed = speed
+        self.dir = dir 
+        Lasers.append(self)
+    
+    def blit(self):
+        pygame.draw.rect(screen, self.color, self.rect)
+    
+    def move(self):
+        if self.dir == 'u':
+            self.rect.y -= self.speed
+        if self.dir == 'd':
+            self.rect.y +=self.speed 
+        if self.dir == 'r':
+            self.rect.x +=self.speed 
+        if self.dir == 'l':
+            self.rect.x -=self.speed 
+
+        if self.rect.y <0 or self.rect.y > SCREEN_HEIGHT \
+            or self.rect.x <0 or self.rect.x > SCREEN_WIDTH:
+            if self in Lasers:
+                Lasers.remove(self)
+
+        for e in Enemies:
+            if self.rect.colliderect(e.rect):
+                Enemies.remove(e)
+                if self in Lasers:
+                    Lasers.remove(self)
 class Enemy:
     def __init__(self, size,x,y,speed):
         self.rect = pygame.Rect(0,0,size[0],size[1])
@@ -191,6 +265,10 @@ while run:
 
     p.move()
     p.blit()
+    
+    for l in Lasers:
+        l.move()
+        l.blit()
 
     for coin in Coins:
         coin.blit()
