@@ -163,9 +163,9 @@ class Coin:
 class Laser():
     def __init__(self,pos,speed,dir):
         if dir == 'u' or dir == 'd':
-            POS = 4,20
+            POS = 6,25
         else:
-            POS = 20,4     
+            POS = 25,6    
         self.rect = pygame.Rect(0,0,POS[0],POS[1])
         self.rect.center = pos
         self.colors = [(255,0,0), (0,255,0), (0,0,255)]
@@ -205,7 +205,7 @@ class Enemy:
         self.y = y
         self.speed = speed
         self.dirs = ['u','d','l','r']
-        self.colors = [(255,0,0), (0,255,0), (0,0,255)]
+        self.colors = [(240,0,255), (0,255,0), (0,0,255)]
         self.color = random.choice(self.colors)
         self.dir = random.choice(self.dirs)
         Enemies.append(self)
