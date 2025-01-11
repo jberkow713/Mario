@@ -25,7 +25,7 @@ def create_enemies(num):
     for _ in range(num):
         speed = random.randint(4,7)*Speed_multiplier
         size = random.randint(25,50)
-        Enemy((size,size),random.randint(size,SCREEN_HEIGHT-size), random.randint(size,SCREEN_WIDTH-size), speed)
+        Enemy((size,size),random.randint(int(size*1.5),int(SCREEN_HEIGHT-(1.5*size))), random.randint(size,SCREEN_WIDTH-size), speed)
     return     
 
 class Player:
@@ -42,7 +42,9 @@ class Player:
         self.can_shoot = True
         self.coins = 0
         self.total_coins = 0
-        self.dir = None 
+        self.dir = None
+        self.coin = pygame.mixer.Sound('coin_s.mp3')
+        self.coin.set_volume(0.3)  
         create_enemies(random.randint(5,10))
             
     def clock_reset(self):
@@ -108,6 +110,7 @@ class Player:
                 self.coins +=1
                 self.total_coins +=1
                 self.health +=10
+                self.coin.play()
 
         for e in Enemies:
             if p.rect.colliderect(e.rect):
@@ -171,8 +174,13 @@ class Laser():
         self.colors = [(255,0,0), (0,255,0), (0,0,255)]
         self.color = random.choice(self.colors)
         self.speed = speed
-        self.dir = dir 
+        self.dir = dir
+        self.laser = pygame.mixer.Sound('audio_laser.wav')
+        self.laser.set_volume(0.3)
+        self.explosion = pygame.mixer.Sound('explosion.wav')
+        self.explosion.set_volume(0.3)  
         Lasers.append(self)
+        self.laser.play()
     
     def blit(self):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -195,6 +203,7 @@ class Laser():
         for e in Enemies:
             if self.rect.colliderect(e.rect):
                 Enemies.remove(e)
+                self.explosion.play()
                 if self in Lasers:
                     Lasers.remove(self)
 class Enemy:
