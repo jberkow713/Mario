@@ -14,6 +14,7 @@ Speed_multiplier = 1
 Enemies = []
 Coins= []
 Lasers = []
+Score = 0
 
 def create_coins(num):
     for _ in range(num):
@@ -62,17 +63,25 @@ class Player:
     def display_health(self):
         font = pygame.font.SysFont("comicsans", 40, True)    
         text = font.render(f'Health: {self.health}', 1, (255,0,0)) 
-        screen.blit(text, (750, 0))
+        screen.blit(text, (800, 0))
     
     def display_coins(self):
         font = pygame.font.SysFont("comicsans", 40, True)    
         text = font.render(f'Coins: {self.coins}', 1, (255,0,0)) 
-        screen.blit(text, (250, 0))
+        screen.blit(text, (0, 0))
     
+    def display_score(self):
+        font = pygame.font.SysFont("comicsans", 40, True)
+        global Score    
+        text = font.render(f'Score: {Score}', 1, (255,0,0)) 
+        screen.blit(text, (400, 0))    
+        
     def blit(self):
         self.display_coins()
         self.display_health()
+        self.display_score()
         pygame.draw.rect(screen, (255,0,0), self.rect)
+
     
     def shoot_laser(self):
         self.can_shoot = False
@@ -93,6 +102,8 @@ class Player:
 
     def move(self):
         if self.total_coins == 10:
+            global Score 
+            Score +=10
             global Speed_multiplier
             Speed_multiplier +=.1
             create_enemies(random.randint(5,15))
@@ -203,6 +214,8 @@ class Laser():
         for e in Enemies:
             if self.rect.colliderect(e.rect):
                 Enemies.remove(e)
+                global Score 
+                Score +=1
                 self.explosion.play()
                 if self in Lasers:
                     Lasers.remove(self)
