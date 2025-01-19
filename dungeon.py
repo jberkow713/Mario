@@ -59,7 +59,13 @@ class Player:
         if self.Laser_reset == 25:
             self.can_shoot = True
             self.Laser_reset = 0        
-    
+    def display_player(self):
+        font = pygame.font.SysFont("comicsans", 35, True)    
+        text = font.render('P', 1, (255,255,255))
+        x_sz = self.rect[2]/3 
+        y_sz = self.rect[3]/3
+        screen.blit(text, (self.rect.x+x_sz,self.rect.y+y_sz)) 
+
     def display_health(self):
         font = pygame.font.SysFont("comicsans", 40, True)    
         text = font.render(f'Health: {self.health}', 1, (255,0,0)) 
@@ -77,10 +83,12 @@ class Player:
         screen.blit(text, (400, 0))    
         
     def blit(self):
+        pygame.draw.rect(screen, (255,0,0), self.rect)
         self.display_coins()
         self.display_health()
         self.display_score()
-        pygame.draw.rect(screen, (255,0,0), self.rect)
+        self.display_player()
+        
 
     
     def shoot_laser(self):
