@@ -6,7 +6,7 @@ pygame.init()
 pygame.font.init()
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
-BG_Color = (64,124,200)
+BG_Colors = [(64,124,200), (255,255,255), (231,120,56)]
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
@@ -31,6 +31,8 @@ def create_enemies(num):
 
 class Player:
     def __init__(self, x,y):
+        self.index = 0
+        self.color = self.find_idx()
         self.rect = pygame.Rect(0,0,40,40)
         self.rect.center = (x,y)
         self.x = x 
@@ -47,7 +49,9 @@ class Player:
         self.coin = pygame.mixer.Sound('coin_s.mp3')
         self.coin.set_volume(0.3)  
         create_enemies(random.randint(5,10))
-            
+    def find_idx(self):
+        return BG_Colors[self.index % len(BG_Colors)] 
+
     def clock_reset(self):
         self.hit_reset+=1
         if self.hit_reset == 15:
@@ -59,6 +63,7 @@ class Player:
         if self.Laser_reset == 25:
             self.can_shoot = True
             self.Laser_reset = 0        
+    
     def display_player(self):
         font = pygame.font.SysFont("comicsans", 35, True)    
         text = font.render('P', 1, (255,255,255))
@@ -110,6 +115,8 @@ class Player:
 
     def move(self):
         if self.total_coins == 10:
+            self.index +=1
+            self.color = self.find_idx()
             global Score 
             Score +=10
             global Speed_multiplier
@@ -289,7 +296,7 @@ while Run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT or p.health<=0:
             Run=False 
-    screen.fill(BG_Color)
+    screen.fill(p.color)
     if Coins == []:
         create_coins(2)
     p.move()
