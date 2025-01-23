@@ -49,6 +49,7 @@ class Player:
         self.coin = pygame.mixer.Sound('coin_s.mp3')
         self.coin.set_volume(0.3)  
         create_enemies(random.randint(5,10))
+    
     def find_idx(self):
         return BG_Colors[self.index % len(BG_Colors)] 
 
@@ -93,25 +94,23 @@ class Player:
         self.display_health()
         self.display_score()
         self.display_player()
-        
-
     
     def shoot_laser(self):
         self.can_shoot = False
         mid = self.rect[2] / 2 
         if self.dir == None:
-            Laser((self.x+mid,self.y),5,'u')
+            Laser((self.x+mid,self.y),10,'u')
         else:
             mid_down = self.rect[3]/2
             if self.dir == 'l':                 
-                Laser((self.rect.x,self.rect.y+mid_down),5,self.dir)
+                Laser((self.rect.x,self.rect.y+mid_down),10,self.dir)
             if self.dir == 'r':
-                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),5,self.dir)
+                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),10,self.dir)
 
             if self.dir =='d':
-                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),5,self.dir)
+                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),10,self.dir)
             if self.dir == 'u':
-                Laser((self.rect.x + mid, self.rect.y), 5, self.dir)
+                Laser((self.rect.x + mid, self.rect.y), 10, self.dir)
 
     def move(self):
         if self.total_coins == 10:
@@ -121,7 +120,7 @@ class Player:
             Score +=10
             global Speed_multiplier
             Speed_multiplier +=.1
-            create_enemies(random.randint(5,15))
+            create_enemies(random.randint(5,10))
             self.total_coins=0
         
         if self.can_hit == False:
