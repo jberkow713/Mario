@@ -14,6 +14,7 @@ Speed_multiplier = 1
 Enemies = []
 Coins= []
 Lasers = []
+Objects = []
 Score = 0
 
 def create_coins(num):
@@ -28,6 +29,26 @@ def create_enemies(num):
         size = random.randint(25,50)
         Enemy((size,size),random.randint(int(size*1.5),int(SCREEN_HEIGHT-(1.5*size))), random.randint(size,SCREEN_WIDTH-size), speed)
     return     
+class Obj:
+    def __init__(self, x,y,Type):
+        self.x = x 
+        self.y = y
+        self.rect = pygame.Rect(0,0,40,40)
+        self.rect.center = (x,y)
+        self.type = Type
+        self.color = random.choice([(255,0,0), (0,255,0), (0,0,255)])
+        Objects.append(self)
+    def blit(self):
+        pygame.draw.rect(screen, self.color, self.rect)
+        self.rect.y += 2
+        font = pygame.font.SysFont("comicsans", 35, True)    
+        text = font.render(self.type[0].upper(), 1, (255,255,255))
+        x_sz = self.rect[2]/3 
+        y_sz = self.rect[3]/3
+        screen.blit(text, (self.rect.x+x_sz,self.rect.y+y_sz)) 
+        if self.rect.y >SCREEN_HEIGHT:
+            Objects.remove(self) 
+
 
 class Player:
     def __init__(self, x,y):
@@ -46,6 +67,7 @@ class Player:
         self.coins = 0
         self.total_coins = 0
         self.dir = None
+        self.laser_type = 'normal'
         self.coin = pygame.mixer.Sound('coin_s.mp3')
         self.coin.set_volume(0.3)  
         create_enemies(random.randint(5,10))
@@ -99,18 +121,18 @@ class Player:
         self.can_shoot = False
         mid = self.rect[2] / 2 
         if self.dir == None:
-            Laser((self.x+mid,self.y),10,'u')
+            Laser((self.x+mid,self.y),10,'u',self.laser_type )
         else:
             mid_down = self.rect[3]/2
             if self.dir == 'l':                 
-                Laser((self.rect.x,self.rect.y+mid_down),10,self.dir)
+                Laser((self.rect.x,self.rect.y+mid_down),10,self.dir,self.laser_type )
             if self.dir == 'r':
-                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),10,self.dir)
+                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),10,self.dir,self.laser_type )
 
             if self.dir =='d':
-                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),10,self.dir)
+                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),10,self.dir,self.laser_type )
             if self.dir == 'u':
-                Laser((self.rect.x + mid, self.rect.y), 10, self.dir)
+                Laser((self.rect.x + mid, self.rect.y), 10, self.dir,self.laser_type )
 
     def move(self):
         if self.total_coins == 10:
@@ -128,7 +150,11 @@ class Player:
         
         if self.can_shoot == False:
             self.laser_reset()
-        
+        for o in Objects:
+            if p.rect.colliderect(o.rect):
+                Objects.remove(o)
+                self.laser_type = o.type 
+
         for c in Coins:
             if p.rect.colliderect(c.rect):
                 Coins.remove(c)
@@ -189,11 +215,23 @@ class Coin:
         screen.blit(self.image,self.rect)
 
 class Laser():
-    def __init__(self,pos,speed,dir):
-        if dir == 'u' or dir == 'd':
-            POS = 6,25
-        else:
-            POS = 25,6    
+    def __init__(self,pos,speed,dir,typ):
+        if typ == 'normal':
+            if dir == 'u' or dir == 'd':
+                POS = 6,25
+            else:                
+                POS = 25,6
+        elif typ == 'large':
+            if dir == 'u' or dir == 'd':
+                POS = 18,50
+            else:                
+                POS = 50,18
+        elif typ =='super':
+            if dir == 'u' or dir == 'd':
+                POS = 36,75
+            else:                
+                POS = 75,36
+
         self.rect = pygame.Rect(0,0,POS[0],POS[1])
         self.rect.center = pos
         self.colors = [(255,0,0), (0,255,0), (0,0,255)]
@@ -289,7 +327,8 @@ class Enemy:
                 self.dir = 'r'
 
 p = Player(207,207)
-Run = True 
+Run = True
+laser_types = ['large','super','normal'] 
 
 while Run:
     for event in pygame.event.get():
@@ -300,7 +339,12 @@ while Run:
         create_coins(2)
     p.move()
     p.blit()
-    
+    if len(Enemies)>0:
+        if random.randint(0,100)>95 and len(Objects)==0:
+            Obj(random.randint(40,SCREEN_WIDTH-40),40,random.choice(laser_types))
+
+    for o in Objects:
+        o.blit()
     for l in Lasers:
         l.move()
         l.blit()
