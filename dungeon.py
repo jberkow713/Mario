@@ -231,6 +231,11 @@ class Laser():
                 POS = 36,75
             else:                
                 POS = 75,36
+        elif typ == 'giant':
+            if dir == 'u' or dir == 'd':
+                POS = 75,150
+            else:                
+                POS = 150,75
 
         self.rect = pygame.Rect(0,0,POS[0],POS[1])
         self.rect.center = pos
@@ -271,6 +276,13 @@ class Laser():
                 self.explosion.play()
                 if self in Lasers:
                     Lasers.remove(self)
+        for o in Objects:
+            if self.rect.colliderect(o.rect):
+                Objects.remove(o)
+                self.explosion.play()
+                if self in Lasers:
+                    Lasers.remove(self)
+
 class Enemy:
     def __init__(self, size,x,y,speed):
         self.rect = pygame.Rect(0,0,size[0],size[1])
@@ -328,7 +340,7 @@ class Enemy:
 
 p = Player(207,207)
 Run = True
-laser_types = ['large','super','normal'] 
+laser_types = ['large','super','normal','giant'] 
 
 while Run:
     for event in pygame.event.get():
