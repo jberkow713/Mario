@@ -29,6 +29,7 @@ def create_enemies(num):
         size = random.randint(25,50)
         Enemy((size,size),random.randint(int(size*1.5),int(SCREEN_HEIGHT-(1.5*size))), random.randint(size,SCREEN_WIDTH-size), speed)
     return     
+
 class Obj:
     def __init__(self, x,y,Type):
         self.x = x 
@@ -47,8 +48,7 @@ class Obj:
         y_sz = self.rect[3]/3
         screen.blit(text, (self.rect.x+x_sz,self.rect.y+y_sz)) 
         if self.rect.y >SCREEN_HEIGHT:
-            Objects.remove(self) 
-
+            Objects.remove(self)
 
 class Player:
     def __init__(self, x,y):
@@ -233,9 +233,9 @@ class Laser():
                 POS = 75,36
         elif typ == 'giant':
             if dir == 'u' or dir == 'd':
-                POS = 75,150
+                POS = 50,100
             else:                
-                POS = 150,75
+                POS = 100,50
 
         self.rect = pygame.Rect(0,0,POS[0],POS[1])
         self.rect.center = pos
