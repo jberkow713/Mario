@@ -15,7 +15,7 @@ Enemies = []
 Coins= []
 Lasers = []
 Objects = []
-Score = 0
+
 
 def create_coins(num):
     for _ in range(num):
@@ -60,6 +60,7 @@ class Player:
         self.y = y
         self.speed = 5
         self.health = 100
+        self.Score = 0
         self.hit_reset = 0
         self.Laser_reset = 0
         self.can_hit = True
@@ -106,8 +107,8 @@ class Player:
     
     def display_score(self):
         font = pygame.font.SysFont("comicsans", 40, True)
-        global Score    
-        text = font.render(f'Score: {Score}', 1, (255,0,0)) 
+          
+        text = font.render(f'Score: {self.Score}', 1, (255,0,0)) 
         screen.blit(text, (400, 0))    
         
     def blit(self):
@@ -121,25 +122,23 @@ class Player:
         self.can_shoot = False
         mid = self.rect[2] / 2 
         if self.dir == None:
-            Laser((self.x+mid,self.y),10,'u',self.laser_type )
+            Laser((self.x+mid,self.y),10,'u',self.laser_type,self )
         else:
             mid_down = self.rect[3]/2
             if self.dir == 'l':                 
-                Laser((self.rect.x,self.rect.y+mid_down),10,self.dir,self.laser_type )
+                Laser((self.rect.x,self.rect.y+mid_down),10,self.dir,self.laser_type,self  )
             if self.dir == 'r':
-                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),10,self.dir,self.laser_type )
+                Laser((self.rect.x+self.rect[2],self.rect.y+mid_down),10,self.dir,self.laser_type,self  )
 
             if self.dir =='d':
-                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),10,self.dir,self.laser_type )
+                Laser((self.rect.x + mid,self.rect.y + self.rect[3]),10,self.dir,self.laser_type,self  )
             if self.dir == 'u':
-                Laser((self.rect.x + mid, self.rect.y), 10, self.dir,self.laser_type )
+                Laser((self.rect.x + mid, self.rect.y), 10, self.dir,self.laser_type,self  )
 
     def move(self):
         if self.total_coins == 10:
             self.index +=1
-            self.color = self.find_idx()
-            global Score 
-            Score +=10
+            self.color = self.find_idx() 
             global Speed_multiplier
             Speed_multiplier +=.1
             create_enemies(random.randint(5,10))
@@ -158,6 +157,7 @@ class Player:
         for c in Coins:
             if p.rect.colliderect(c.rect):
                 Coins.remove(c)
+                self.Score +=1
                 self.coins +=1
                 self.total_coins +=1
                 self.health +=10
@@ -215,7 +215,7 @@ class Coin:
         screen.blit(self.image,self.rect)
 
 class Laser():
-    def __init__(self,pos,speed,dir,typ):
+    def __init__(self,pos,speed,dir,typ,player):
         if typ == 'normal':
             if dir == 'u' or dir == 'd':
                 POS = 6,25
@@ -236,7 +236,7 @@ class Laser():
                 POS = 50,100
             else:                
                 POS = 100,50
-
+        self.player = player 
         self.rect = pygame.Rect(0,0,POS[0],POS[1])
         self.rect.center = pos
         self.colors = [(255,0,0), (0,255,0), (0,0,255)]
@@ -270,9 +270,8 @@ class Laser():
 
         for e in Enemies:
             if self.rect.colliderect(e.rect):
-                Enemies.remove(e)
-                global Score 
-                Score +=1
+                Enemies.remove(e) 
+                self.player.Score +=1
                 self.explosion.play()
                 if self in Lasers:
                     Lasers.remove(self)
