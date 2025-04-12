@@ -16,7 +16,6 @@ Coins= []
 Lasers = []
 Objects = []
 
-
 def create_coins(num):
     for _ in range(num):
         Coin(random.randint(50,SCREEN_WIDTH-50), random.randint(50,SCREEN_HEIGHT-50))
@@ -141,7 +140,7 @@ class Player:
             self.color = self.find_idx() 
             global Speed_multiplier
             Speed_multiplier +=.1
-            create_enemies(random.randint(5,10))
+            create_enemies(random.randint(5,15))
             self.total_coins=0
         
         if self.can_hit == False:
@@ -340,7 +339,6 @@ class Enemy:
 p = Player(207,207)
 Run = True
 laser_types = ['large','super','normal','giant'] 
-
 
 while Run:
     for event in pygame.event.get():
